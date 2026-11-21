@@ -336,7 +336,7 @@
     import('./cover.js').then(function (m) {
       return m.start(hero, {
         reduce: reduce,
-        autoplay: !settled,
+        canAutoplay: function () { return !settled; },
         onReady: function () { clearTimeout(fallback); settled = true; },
         state: heroState
       });

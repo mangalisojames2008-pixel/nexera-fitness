@@ -37,6 +37,9 @@ export async function start(hero, opts = {}) {
   const cam = new THREE.PerspectiveCamera(30, 1, 0.1, 200);
   const shared = opts.state || {};
   const poster = /[?&]poster\b/.test(location.search);
+  /* decide now: play the intro, or (if the still picture is already showing) keep the finished frame */
+  const autoplay = poster ? false : (opts.canAutoplay ? opts.canAutoplay() : true);
+  if (opts.onReady) opts.onReady();
 
   await Promise.race([document.fonts ? document.fonts.ready : null, new Promise(r => setTimeout(r, 1500))]);
 
@@ -336,7 +339,7 @@ export async function start(hero, opts = {}) {
     return { replay: () => false };
   }
 
-  if (opts.autoplay === false) {
+  if (!autoplay) {
     /* the 3D arrived after the still picture was already showing: keep the finished frame, offer Replay */
     finalState();
     ended = false; onEnd();
@@ -346,7 +349,6 @@ export async function start(hero, opts = {}) {
     build();
     tl.play(0);
   }
-  if (opts.onReady) opts.onReady();
   wake(1500);
   if (/[?&]debug\b/.test(location.search)) window.__nexCover = { tl: () => tl, S, draw: () => frame(performance.now()) };
   startLoop();
