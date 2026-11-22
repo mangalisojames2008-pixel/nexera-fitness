@@ -14,7 +14,7 @@ const gsap = window.gsap, ScrollTrigger = window.ScrollTrigger;
 const DATA = window.NEXERA_SKIN;
 const PHONE = matchMedia('(max-width: 760px), (pointer: coarse)').matches;
 const LAYERS = PHONE ? 8 : 16;
-const DEFAULT_THEME = { bg: '#f4f2ed', accent: '#e0566b', ingredient: '#f3b2a0' };
+const DEFAULT_THEME = { bg: '#f6f0e0', accent: '#b46645', ingredient: '#f2ca99' };
 const TAU = Math.PI * 2;
 const clamp01 = t => Math.min(1, Math.max(0, t));
 const lerp = THREE.MathUtils.lerp;
@@ -72,17 +72,17 @@ export async function start(story) {
     const g = c.getContext('2d');
     const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
     function paint() {
-      g.fillStyle = '#0c1026'; g.fillRect(0, 0, 512, 600);
-      g.fillStyle = '#f4f2ed'; g.textAlign = 'center'; g.font = '700 74px Sora, "Segoe UI", sans-serif';
+      g.fillStyle = '#2a150f'; g.fillRect(0, 0, 512, 600);
+      g.fillStyle = '#f6f0e0'; g.textAlign = 'center'; g.font = '700 74px Sora, "Segoe UI", sans-serif';
       g.fillText('NEXERA', 256, 330);
-      const grd = g.createLinearGradient(220, 380, 292, 452); grd.addColorStop(0, '#ff9a4d'); grd.addColorStop(0.5, '#ff4f6e'); grd.addColorStop(1, '#7c5cff');
+      const grd = g.createLinearGradient(220, 380, 292, 452); grd.addColorStop(0, '#d9ab41'); grd.addColorStop(0.5, '#b46645'); grd.addColorStop(1, '#8a4630');
       g.fillStyle = grd; g.beginPath(); g.arc(256, 410, 15, 0, TAU); g.fill();
-      g.fillStyle = 'rgba(244,242,237,.6)'; g.font = '500 26px "DM Sans", sans-serif'; g.fillText('Shop smarter. Live better.', 256, 500);
+      g.fillStyle = 'rgba(246, 240, 224,.6)'; g.font = '500 26px "DM Sans", sans-serif'; g.fillText('Shop smarter. Live better.', 256, 500);
       t.needsUpdate = true;
     }
     paint();
-    const plain = new THREE.MeshStandardMaterial({ color: '#0c1026', roughness: 0.65, side: THREE.DoubleSide });
-    const inside = new THREE.MeshStandardMaterial({ color: '#1a1d45', roughness: 0.8, side: THREE.DoubleSide });
+    const plain = new THREE.MeshStandardMaterial({ color: '#2a150f', roughness: 0.65, side: THREE.DoubleSide });
+    const inside = new THREE.MeshStandardMaterial({ color: '#4a2619', roughness: 0.8, side: THREE.DoubleSide });
     const face = new THREE.MeshStandardMaterial({ map: t, roughness: 0.6 });
     const open = new THREE.MeshBasicMaterial({ visible: false });
     const grp = new THREE.Group();

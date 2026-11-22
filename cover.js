@@ -14,6 +14,15 @@ const clamp01 = t => Math.min(1, Math.max(0, t));
 const ease = t => 1 - Math.pow(1 - t, 3);
 
 const DATA = window.NEXERA_SKIN;
+/* Colours: golden hour in terracotta, nude, cream and gold. */
+const C = {
+  fogNight: '#3a1d15', fogDawn: '#e3ad82', floorTint: '#ffd2ad', floorMetal: 0.12,
+  floor: [[0, '#8a5038'], [0.4, '#61341f'], [1, '#3a1e13']],
+  sun: [[0, '#fff6dc'], [0.35, '#f6d47a'], [0.7, '#d9ab41'], [1, '#b46645']],
+  glow: [[0, 'rgba(246,212,122,0.9)'], [0.35, 'rgba(242,202,153,0.4)'], [1, 'rgba(180,102,69,0)']],
+  ripple: '#f2ca99', drip: '#d9ab41', dripGlow: '#f2b45a',
+  rim: [0.78, 0.6, 0.52, 0.42], night: [0.55, 0.46, 0.42]
+};
 const STEP = {}; DATA.STEPS.forEach(s => { STEP[s.id] = s; });
 /* one featured product per step, in routine order */
 const SPECS = DATA.FEATURED.map(p => ({ p, n: STEP[p.step].n, name: STEP[p.step].name }));
@@ -43,14 +52,14 @@ export async function start(hero, opts = {}) {
   await Promise.race([document.fonts ? document.fonts.ready : null, new Promise(r => setTimeout(r, 1500))]);
 
   /* ----- the stage ----- */
-  const fogNight = new THREE.Color('#1e2250'), fogDawn = new THREE.Color('#f08470');
+  const fogNight = new THREE.Color(C.fogNight), fogDawn = new THREE.Color(C.fogDawn);
   scene.fog = new THREE.Fog(fogNight.clone(), 14, 40);
-  const floorTex = gradientTexture([[0, '#1d2048'], [0.4, '#10122e'], [1, '#080a1c']], true);
-  const floor = new THREE.Mesh(new THREE.CircleGeometry(34, 72), new THREE.MeshStandardMaterial({ color: '#ffffff', map: floorTex, roughness: 0.32, metalness: 0.35, envMapIntensity: 0.22 }));
+  const floorTex = gradientTexture(C.floor, true);
+  const floor = new THREE.Mesh(new THREE.CircleGeometry(34, 72), new THREE.MeshStandardMaterial({ color: C.floorTint, map: floorTex, roughness: 0.32, metalness: C.floorMetal, envMapIntensity: 0.22 }));
   floor.rotation.x = -Math.PI / 2; scene.add(floor);
 
-  const dawnTex = gradientTexture([[0, '#ffc27a'], [0.4, '#ff8a5a'], [0.72, '#ff4f6e'], [1, '#7c5cff']]);
-  const glowTex = gradientTexture([[0, 'rgba(255,170,120,0.9)'], [0.35, 'rgba(255,110,110,0.35)'], [1, 'rgba(124,92,255,0)']], true);
+  const dawnTex = gradientTexture(C.sun);
+  const glowTex = gradientTexture(C.glow, true);
   const sun = new THREE.Group();
   const sunDisc = new THREE.Mesh(new THREE.CircleGeometry(1, 64), new THREE.MeshBasicMaterial({ map: dawnTex, fog: false, toneMapped: false, transparent: true }));
   const sunGlow = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, blending: THREE.AdditiveBlending, depthWrite: false, fog: false, toneMapped: false, transparent: true }));
@@ -62,7 +71,7 @@ export async function start(hero, opts = {}) {
   const dropGlow = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, toneMapped: false }));
   dropGlow.scale.set(2.2, 2.2, 1); drop.add(dropGlow, dropBall); scene.add(drop);
 
-  const ringMat = () => new THREE.MeshBasicMaterial({ color: '#ff9a6a', transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false });
+  const ringMat = () => new THREE.MeshBasicMaterial({ color: C.ripple, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false });
   const ripples = [0, 1, 2, 3, 4].map(() => { const m = new THREE.Mesh(new THREE.RingGeometry(0.92, 1, 72), ringMat()); m.rotation.x = -Math.PI / 2; m.position.y = 0.01; scene.add(m); return m; });
 
   const stands = await Promise.all(SPECS.map(spec => photoProduct(spec.p, { maxH: 4.2, maxW: 2.25, renderer })));
@@ -74,7 +83,7 @@ export async function start(hero, opts = {}) {
   });
   const bubbleMat = new THREE.MeshPhysicalMaterial({ color: '#ffffff', roughness: 0.05, transparent: true, opacity: 0.75, clearcoat: 1, transmission: 0 });
   const bubbles = [0, 1, 2, 3].map(i => { const b = new THREE.Mesh(new THREE.SphereGeometry(0.09 + i * 0.025, 20, 20), bubbleMat); b.visible = false; scene.add(b); return b; });
-  const drip = new THREE.Mesh(new THREE.SphereGeometry(0.075, 20, 20), new THREE.MeshPhysicalMaterial({ color: '#e6a24f', emissive: '#ff9a4d', emissiveIntensity: 0.3, roughness: 0.1, clearcoat: 1 }));
+  const drip = new THREE.Mesh(new THREE.SphereGeometry(0.075, 20, 20), new THREE.MeshPhysicalMaterial({ color: C.drip, emissive: C.dripGlow, emissiveIntensity: 0.3, roughness: 0.1, clearcoat: 1 }));
   drip.visible = false; scene.add(drip);
 
   /* ----- layout for phones (portrait) and wider screens ----- */
@@ -131,11 +140,11 @@ export async function start(hero, opts = {}) {
     /* light warms as the sun rises */
     skyDawn.style.opacity = S.warm.toFixed(3);
     scene.fog.color.copy(fogNight).lerp(fogDawn, S.warm * 0.85);
-    rim.intensity = 1.2 + S.warm * 1.6; rim.color.setRGB(1, lerp(0.7, 0.62, S.warm), lerp(0.48, 0.5, S.warm));
+    rim.intensity = 1.2 + S.warm * 1.6; rim.color.setRGB(1, lerp(C.rim[0], C.rim[1], S.warm), lerp(C.rim[2], C.rim[3], S.warm));
     key.intensity = 1.3 + S.warm * 0.4;
     /* the photos are dim and blue at night and take on the morning light */
     const w = S.warm;
-    items.forEach(it => tint(it.stand, lerp(0.5, 1, w), lerp(0.53, 0.985, w), lerp(0.68, 0.955, w)));
+    items.forEach(it => tint(it.stand, lerp(C.night[0], 1, w), lerp(C.night[1], 0.985, w), lerp(C.night[2], 0.955, w)));
 
     /* the drop */
     drop.visible = S.fall > 0 && S.land < 1;

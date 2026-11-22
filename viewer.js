@@ -24,7 +24,7 @@ let cur = null;
 export function open(p, opts = {}) {
   if (cur) close(true);
   const reduce = !!opts.reduce;
-  const theme = (window.NEXERA_SKIN.THEME || {})[p.brand] || { ingredient: '#ffb27a' };
+  const theme = (window.NEXERA_SKIN.THEME || {})[p.brand] || { ingredient: '#f2ca99' };
   const ui = {
     stage: $('.pv__stage', pv), still: $('.pv__still', pv), replay: $('[data-pv-replay]', pv), add: $('[data-pv-add]', pv), ask: $('[data-pv-ask]', pv),
     close: $('[data-pv-close]', pv), panel: $('.pv__panel', pv), loading: $('.pv__loading', pv), back: $('[data-angle="back"]', pv)
