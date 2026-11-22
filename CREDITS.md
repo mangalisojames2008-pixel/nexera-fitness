@@ -5,7 +5,7 @@
 - **Lenis** 1.1.13 (smooth scrolling), MIT License, in `vendor/lenis.min.js`. Licence: `vendor/lenis-LICENSE.txt`.
 - **Fonts:** Sora, DM Sans and JetBrains Mono from Google Fonts, SIL Open Font License.
 - **Logo:** NexEra's own logo files, copied from the store (`../nexera/assets/`).
-- **Product photos:** the brands' own packshots, from africa.garnier.com, africa.cerave.com, cerave.co.uk, eucerin.co.za, eucerin.co.uk and avene.co.uk. The source page of each is in `skincare_products.json`. They belong to the brands.
-- **Illustrations, 3D views, cover and skin diagrams:** made in code for NexEra (`studio.js`, `cover.js`, `viewer.js`, `tools/build.js`). They show generic packaging, not any brand's packaging. No stock images.
+- **Product photos:** the brands' own packshots, from africa.garnier.com, africa.cerave.com, cerave.co.uk, eucerin.co.za, eucerin.co.uk and avene.co.uk. The source page of each is in `skincare_products.json`. They belong to the brands. The cut-out versions (`assets/cutouts/`) and the 3D views are made from them (background removed with rembg, MIT License).
+- **Cover, scroll story, skin diagrams and the bag:** made in code for NexEra (`cover.js`, `story.js`, `product-image-3d.js`, `tools/build.js`). No stock images.
 - **Brands:** Garnier, CeraVe, Eucerin and Avène (Eau Thermale Avène) are trademarks of their owners. NexEra is an independent retailer, not connected to or endorsed by them. Product names come from the owner's product list.
 - **Facts:** "SPF 30 filters about 97% of UVB rays, SPF 50 about 98%": The Skin Cancer Foundation, https://www.skincancer.org/press/the-skin-cancer-foundation-offers-tips-on-choosing-and-using-sunscreen-2/ . "SPF 20 to 50, and 30 to 50 for fair skin": CANSA, Be SunSmart, https://cansa.org.za/be-sunsmart/

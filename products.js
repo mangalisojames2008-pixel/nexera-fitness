@@ -2,8 +2,9 @@
    NexEra Skin: the product range.
    Edit the lists in RANGE to add or remove products.
    Names come from the owner's product list (South African market).
-   Everything else (type, packaging shape, ingredient chips) is worked out
-   from the name below, so nothing here is a claim the name does not make.
+   Everything else (type and ingredient chips) is worked out from the name
+   below, so nothing here is a claim the name does not make.
+   Every product has a real photo: assets/cutouts/<id>.webp (see NOTES.md).
    ========================================================= */
 (function (global) {
   'use strict';
@@ -19,25 +20,33 @@
 
   /* The types visitors can filter by, and which routine step each belongs to. */
   var TYPES = [
-        { id: 'cleanser', name: 'Cleansers', one: 'Cleanser', step: 'cleanse', tone: 'aqua',
+        { id: 'cleanser', name: 'Cleansers', one: 'Cleanser', step: 'cleanse',
       what: 'Cleansers lift away oil, dirt, sunscreen and make-up, so skin is clean before the next step.' },
-    { id: 'water', name: 'Waters and toners', one: 'Water or toner', step: 'cleanse', tone: 'mist',
+    { id: 'water', name: 'Waters and toners', one: 'Water or toner', step: 'cleanse',
       what: 'Light waters and toners refresh the skin or take off make-up without rinsing.' },
-    { id: 'exfoliant', name: 'Exfoliators and treatments', one: 'Exfoliator or treatment', step: 'cleanse', tone: 'clay',
+    { id: 'exfoliant', name: 'Exfoliators and treatments', one: 'Exfoliator or treatment', step: 'cleanse',
       what: 'Used now and then, these clear away dead skin cells or target a single spot.' },
-    { id: 'serum', name: 'Serums', one: 'Serum', step: 'treat', tone: 'amber',
+    { id: 'serum', name: 'Serums', one: 'Serum', step: 'treat',
       what: 'Serums are light, concentrated formulas used after cleansing and before moisturiser.' },
-    { id: 'moisturiser', name: 'Moisturisers', one: 'Moisturiser', step: 'moisturise', tone: 'blush',
+    { id: 'moisturiser', name: 'Moisturisers', one: 'Moisturiser', step: 'moisturise',
       what: 'Moisturisers help the skin hold on to water, so it feels soft and comfortable.' },
-    { id: 'sunscreen', name: 'Sunscreens', one: 'Sunscreen', step: 'protect', tone: 'sun',
+    { id: 'sunscreen', name: 'Sunscreens', one: 'Sunscreen', step: 'protect',
       what: 'Sunscreens filter the sun’s UV rays. They go on last in the morning and are reapplied during the day.' },
-    { id: 'body', name: 'Body care', one: 'Body care', step: 'moisturise', tone: 'sky',
+    { id: 'body', name: 'Body care', one: 'Body care', step: 'moisturise',
       what: 'Moisture for arms, legs, hands and feet, in lotions and creams made for the body.' },
-    { id: 'repair', name: 'Repair and balms', one: 'Repair cream or balm', step: 'moisturise', tone: 'lilac',
+    { id: 'repair', name: 'Repair and balms', one: 'Repair cream or balm', step: 'moisturise',
       what: 'Richer creams, balms and ointments for very dry, rough or uncomfortable areas.' },
-    { id: 'eyelip', name: 'Eye and lip', one: 'Eye or lip care', step: 'moisturise', tone: 'rose',
+    { id: 'eyelip', name: 'Eye and lip', one: 'Eye or lip care', step: 'moisturise',
       what: 'Small formats made for the thinner skin around the eyes or on the lips.' }
   ];
+
+  /* Brand colours for the scroll story, cards and 3D view (bg, accent, ingredient bubbles). */
+  var THEME = {
+    cerave: { bg: '#eaf1f8', accent: '#1f5fa8', ingredient: '#a9c9ee' },
+    garnier: { bg: '#fff1e0', accent: '#e06a00', ingredient: '#ffc46b' },
+    eucerin: { bg: '#fbecee', accent: '#b0213c', ingredient: '#f2b3bf' },
+    avene: { bg: '#e4f4f2', accent: '#138a87', ingredient: '#9fd9d3' }
+  };
 
   /* The routine steps, used by the cover, the skin story and the 3D view. */
   var STEPS = [
@@ -51,16 +60,13 @@
   var RANGE = {
     garnier: {
       cleanser: [
-        'Even & Bright Vitamin C Serum Cleanser', 'Even & Bright Vitamin C Cleansing Foam', 'Even & Matte Vitamin C Cleansing Gel', 'Pure Active Deep Hydrating Cleanser', 'Pure Active Daily Deep Pore Wash', 'Pure Active 3-in-1 Clay Cleanser', 'Pure Active Charcoal 3-in-1'
+        'Even & Bright Vitamin C Serum Cleanser', 'Even & Bright Vitamin C Cleansing Foam', 'Even & Matte Vitamin C Cleansing Gel', 'Pure Active Daily Deep Pore Wash', 'Pure Active 3-in-1 Clay Cleanser', 'Pure Active Charcoal 3-in-1'
       ],
-      water: ['Micellar Cleansing Water', 'Micellar Gentle Peeling Water'],
-      moisturiser: ['Even & Bright Vitamin C Water Gel', 'Even & Bright Vitamin C Cream for Very Oily Skin', 'Pure Active AHA+BHA Charcoal Air Cream'
+      water: ['Micellar Cleansing Water'],
+      moisturiser: ['Even & Bright Vitamin C Water Gel', 'Even & Bright Vitamin C Cream for Very Oily Skin'],
+      serum: ['Even & Bright 3.5% Vitamin C Day Booster Serum', 'Pure Active AHA+BHA Charcoal Anti-Blemish Serum', 'Even & Bright Vitamin C Dark Spot Corrector'
       ],
-      serum: ['Even & Bright 3.5% Vitamin C Day Booster Serum',
-        'Even & Bright Night Serum', 'Pure Active AHA+BHA Charcoal Anti-Blemish Serum', 'Even & Bright Vitamin C Dark Spot Corrector'
-      ],
-      sunscreen: [
-        'Super UV Air-Mist Sunscreen SPF50', 'Super UV Invisible Serum Sunscreen Vitamin C', 'Super UV Cooling Watergel Sunscreen Vitamin C', 'Even & Bright Vitamin C Protection Day Cream SPF30'
+      sunscreen: ['Super UV Invisible Serum Sunscreen Vitamin C', 'Even & Bright Vitamin C Protection Day Cream SPF30'
       ],
       exfoliant: ['Even & Bright Vitamin C Gentle Clarifying Face Scrub']
     },
@@ -70,26 +76,22 @@
         'Blemish Control Cleanser', 'Hydrating Foaming Oil Cleanser'
       ],
       moisturiser: [
-        'Moisturising Cream', 'Moisturising Lotion', 'Facial Moisturising Lotion', 'Facial Moisturising Lotion PM',
-        'Oil Control Moisturising Gel-Cream', 'Intensive Moisturising Cream', 'SA Smoothing Cream', 'Skin Renewing Peptide Cream'
-      ],
-      serum: ['Skin Renewing Vitamin C Serum', 'Resurfacing Retinol Serum', 'Hydrating Hyaluronic Acid Serum', 'Skin Renewing Retinol Serum'],
+        'Moisturising Cream', 'Moisturising Lotion', 'Facial Moisturising Lotion PM',
+        'Oil Control Moisturising Gel-Cream', 'Intensive Moisturising Cream', 'SA Smoothing Cream'],
+      serum: ['Skin Renewing Vitamin C Serum', 'Resurfacing Retinol Serum', 'Hydrating Hyaluronic Acid Serum'],
       sunscreen: ['Facial Moisturising Lotion SPF30', 'Facial Moisturising Lotion SPF50'],
       repair: ['Advanced Repair Ointment'],
-      eyelip: ['Eye Repair Cream', 'Skin Renewing Eye Cream']
+      eyelip: ['Eye Repair Cream']
     },
     eucerin: {
-      cleanser: [
-        'DermoPure Purifying Cleanser',
-        'DermatoCLEAN Refreshing Cleansing Gel'
+      cleanser: ['DermatoCLEAN Refreshing Cleansing Gel'
       ],
       water: ['DermoPure Toner'],
       moisturiser: [
         'DermoPure Hydra Repair', 'DermoPure Clinical Mattifying Fluid', 'Hyaluron-Filler Day Cream', 'Hyaluron-Filler Night Cream',
         'Hyaluron-Filler + Elasticity Day Cream', 'Hyaluron-Filler + Elasticity Night Cream', 'Original Extra Thick Creme'
       ],
-      serum: ['Even Pigment Perfector Dual Serum', 'Even Pigment Perfector Serum',
-        'Hyaluron-Filler Epicelline Serum', 'Anti-Pigment Spot Corrector'
+      serum: ['Even Pigment Perfector Dual Serum', 'Anti-Pigment Spot Corrector'
       ],
       sunscreen: [
         'Sun Face Oil Control Gel-Cream SPF50+', 'Sun Face Hydro Protect SPF50+', 'Sun Face Photoaging Control SPF50+',
@@ -97,20 +99,15 @@
       ],
       body: [
         'pH5 Soft Body Cream', 'UreaRepair PLUS 10% Urea Lotion',
-        'UreaRepair PLUS 5% Urea Hand Cream', 'Even Pigment Perfector Sensitive Areas Body Serum', 'Hyaluron-Filler + Elasticity Hand Cream'
-      ],
-      repair: ['Aquaphor Soothing Skin Balm', 'Aquaphor Repairing Ointment']
+        'UreaRepair PLUS 5% Urea Hand Cream'],
+      repair: ['Aquaphor Soothing Skin Balm']
     },
     avene: {
       cleanser: [
-        'Cleanance Cleansing Gel', 'Tolerance Extremely Gentle Cleanser', 'XeraCalm A.D Cleansing Oil'
-      ],
+        'Cleanance Cleansing Gel', 'Tolerance Extremely Gentle Cleanser'],
       water: ['Cleanance Micellar Water', 'Thermal Spring Water'],
       moisturiser: [
-        'Hydrance Light Hydrating Emulsion', 'Hydrance Rich Hydrating Cream', 'Hydrance Aqua-Gel', 'Tolerance Hydra-10 Cream',
-        'Tolerance Hydra-10 Fluid', 'Tolerance Control Soothing Skin Recovery Cream', 'Hyaluron Activ B3 Cellular Renewal Cream',
-        'Revitalizing Nourishing Cream'
-      ],
+        'Hydrance Light Hydrating Emulsion', 'Hydrance Rich Hydrating Cream', 'Hydrance Aqua-Gel', 'Tolerance Control Soothing Skin Recovery Cream', 'Hyaluron Activ B3 Cellular Renewal Cream'],
       serum: [
         'Hyaluron Activ B3 Serum', 'Cicalfate+ Intensive Recovery Serum', 'Vitamin Activ Cg Serum', 'Cleanance Comedomed'
       ],
@@ -119,11 +116,38 @@
         'Tolerance Control Soothing Skin Recovery Balm'
       ],
       sunscreen: [
-        'Hydrance SPF30 Hydrating Cream', 'Very High Protection Cream SPF50+', 'Intense Protect SPF50+', 'Mineral Sunscreen SPF50+', 'Anti-Ageing Sunscreen SPF50+'
-      ],
+        'Hydrance SPF30 Hydrating Cream', 'Very High Protection Cream SPF50+', 'Intense Protect SPF50+', 'Mineral Sunscreen SPF50+'],
       eyelip: ['Cicalfate+ Lips']
     }
   };
+  /* Sell tier from the owner's list (skincare_products.json, "sell_tier").
+     stock: featured and sold. maybe: listed in the shop only, never featured.
+     Everything in RANGE that is not listed here is stock.
+     skip: not on the site (removed from RANGE). */
+  var MAYBE = {
+    garnier: ['Even & Bright Vitamin C Serum Cleanser', 'Pure Active Daily Deep Pore Wash', 'Pure Active 3-in-1 Clay Cleanser',
+      'Even & Bright Vitamin C Cream for Very Oily Skin', 'Pure Active AHA+BHA Charcoal Anti-Blemish Serum', 'Even & Bright Vitamin C Gentle Clarifying Face Scrub'],
+    cerave: ['Hydrating Cream-to-Foam Cleanser', 'Hydrating Foaming Oil Cleanser', 'Intensive Moisturising Cream', 'Oil Control Moisturising Gel-Cream',
+      'Skin Renewing Vitamin C Serum', 'Hydrating Hyaluronic Acid Serum', 'Facial Moisturising Lotion SPF50', 'Eye Repair Cream'],
+    eucerin: ['DermoPure Toner', 'DermoPure Hydra Repair', 'DermoPure Clinical Mattifying Fluid', 'Hyaluron-Filler + Elasticity Day Cream',
+      'Hyaluron-Filler + Elasticity Night Cream', 'Anti-Pigment Spot Corrector', 'Sun Face Hydro Protect SPF50+', 'Sun Face Photoaging Control SPF50+',
+      'Sun Body Gel-Cream Dry Touch', 'Sun Sensitive Protect'],
+    avene: ['Tolerance Extremely Gentle Cleanser', 'Cleanance Micellar Water', 'Hydrance Light Hydrating Emulsion', 'Hydrance Rich Hydrating Cream',
+      'Tolerance Control Soothing Skin Recovery Cream', 'Hyaluron Activ B3 Cellular Renewal Cream', 'Hyaluron Activ B3 Serum',
+      'Cicalfate+ Intensive Recovery Serum', 'Vitamin Activ Cg Serum', 'Cleanance Comedomed', 'XeraCalm A.D Lipid-Replenishing Cream',
+      'Tolerance Control Soothing Skin Recovery Balm', 'Hydrance SPF30 Hydrating Cream', 'Very High Protection Cream SPF50+', 'Mineral Sunscreen SPF50+']
+  };
+
+  /* The four products the cover and the scroll story feature, one per step. Stock only.
+     Garnier's "Vitamin C Booster Serum" (stock) is the same serum as the
+     Even & Bright 3.5% Vitamin C Day Booster Serum; only the current name has a photo. */
+  var FEATURED = [
+    'cerave-hydrating-cleanser',
+    'garnier-even-and-bright-3-5-vitamin-c-day-booster-serum',
+    'avene-hydrance-aqua-gel',
+    'eucerin-sun-face-oil-control-gel-cream-spf50-plus'
+  ];
+
   /* Removed on 2026-11-22 (owner's request): products with no real product photo,
      most of them old names or not sold in South Africa. See images/report.md.
      "Even & Matte Vitamin C Face Scrub" is listed under its current name,
@@ -132,7 +156,8 @@
      Garnier "Pure Active 3-in-1 Clay" = "Pure Active 3-in-1 Clay Cleanser";
      CeraVe "SA Smoothing Cream", "Moisturising Cream", "Moisturising Lotion" (also under body care);
      Avène "Cicalfate+ Repairing Protective Cream" = "Cicalfate+ Restorative Protective Cream";
-     Avène "Tolérance Soothing Skin Recovery Balm" = "Tolerance Control Soothing Skin Recovery Balm". */
+     Avène "Tolérance Soothing Skin Recovery Balm" = "Tolerance Control Soothing Skin Recovery Balm".
+     Removed on 2026-11-22 (owner's sell tiers): the 21 products marked skip. */
 
   /* Ranges (product lines) recognised at the start of a name. */
   var RANGES = {
@@ -163,27 +188,10 @@
     [/\bDay\b/, 'Day']
   ];
 
-  /* Which packaging the illustration uses, from words in the name. */
-  function shapeOf(name, type) {
-    if (/Patches/.test(name)) return 'patches';
-    if (/Air-Mist|Thermal Spring Water/.test(name)) return 'spray';
-    if (type === 'eyelip') return 'minitube';
-    if (/Hand Cream/.test(name)) return 'tube';
-    if (type === 'sunscreen') return /Lotion/.test(name) ? 'pump' : 'tube';
-    if (/Micellar|Toner|Peeling Water|Jelly/.test(name)) return 'flip';
-    if (type === 'cleanser') return /Foam|Foaming/.test(name) ? 'foam' : 'pump';
-    if (/Serum|Booster|Corrector|Concentrate|Comedomed$/.test(name)) return 'dropper';
-    if (/Scrub|Peeling|Ointment|Balm|Cicalfate|Recovery|Fluid|Emulsion|Hydra Repair/.test(name)) return 'tube';
-    if (/Lotion/.test(name)) return 'pump';
-    if (/Cream|Creme|Gel|Aqua/.test(name)) return 'jar';
-    return 'pump';
-  }
-
   function slug(s) {
     return s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/\+/g, ' plus ').replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   }
 
-  var CAPS = { garnier: 'ink', cerave: 'white', eucerin: 'silver', avene: 'gold' };
   var typeById = {}, brandById = {};
   TYPES.forEach(function (t) { typeById[t.id] = t; });
   BRANDS.forEach(function (b) { brandById[b.id] = b; });
@@ -207,11 +215,18 @@
         if (spf) chips.unshift('SPF ' + spf);
         PRODUCTS.push({
           id: id, brand: b.id, brandName: b.name, name: name, type: typeId, typeName: t.one, step: t.step,
-          range: range, chips: chips.slice(0, 2), shape: shapeOf(name, typeId), tone: t.tone, cap: CAPS[b.id]
+          range: range, chips: chips.slice(0, 2), tier: (MAYBE[b.id] || []).indexOf(name) >= 0 ? 'maybe' : 'stock',
+          img: 'assets/cutouts/' + id + '.webp', thumb: 'assets/cutouts/sm/' + id + '.webp'
         });
       });
     });
   });
 
-  global.NEXERA_SKIN = { EMAIL: EMAIL, BRANDS: BRANDS, TYPES: TYPES, STEPS: STEPS, PRODUCTS: PRODUCTS, typeById: typeById, brandById: brandById };
+  /* The shop shows stock first, then maybe (each keeps the brand and type order). */
+  PRODUCTS = PRODUCTS.filter(function (p) { return p.tier === 'stock'; }).concat(PRODUCTS.filter(function (p) { return p.tier === 'maybe'; }));
+  var byId = {};
+  PRODUCTS.forEach(function (p) { byId[p.id] = p; });
+  var featured = FEATURED.map(function (id) { return byId[id]; }).filter(function (p) { return p && p.tier === 'stock'; });
+
+  global.NEXERA_SKIN = { EMAIL: EMAIL, BRANDS: BRANDS, TYPES: TYPES, STEPS: STEPS, THEME: THEME, PRODUCTS: PRODUCTS, FEATURED: featured, typeById: typeById, brandById: brandById, byId: byId };
 })(typeof window !== 'undefined' ? window : globalThis);

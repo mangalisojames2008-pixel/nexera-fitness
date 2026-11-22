@@ -23,7 +23,7 @@
   function r1(n) { return Math.round(n * 10) / 10; }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function mailto(subject, body) { return 'mailto:' + EMAIL + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body); }
-  function artOf(p) { return (window.NEXERA_PHOTOS || {})[p.id] ? 'assets/photos/' + p.id + '.webp' : 'assets/products/' + p.shape + '-' + p.tone + '-' + p.cap + '.webp'; }
+  function artOf(p) { return p.thumb; }
   function onVisible(el, cb, margin) {
     if (!('IntersectionObserver' in window)) { cb(true); return; }
     new IntersectionObserver(function (e) { cb(e[0].isIntersecting); }, { rootMargin: margin || '80px 0px' }).observe(el);
@@ -82,13 +82,14 @@
     function count() { return items.reduce(function (n, i) { return n + i.qty; }, 0); }
     function has(id) { return items.some(function (i) { return i.id === id; }); }
     function syncButtons() {
-      $$('.card').forEach(function (c) {
-        var b = $('[data-add]', c); if (!b) return;
-        var on = has(c.getAttribute('data-id'));
+      function sync(b, id) {
+        var on = has(id);
         b.setAttribute('aria-pressed', on ? 'true' : 'false');
         $('span', b).textContent = on ? 'In your list' : 'Add to list';
         $('use', b).setAttribute('href', on ? '#i-check' : '#i-plus');
-      });
+      }
+      $$('.card').forEach(function (c) { var b = $('[data-add]', c); if (b) sync(b, c.getAttribute('data-id')); });
+      $$('[data-add-id]').forEach(function (b) { sync(b, b.getAttribute('data-add-id')); });
       var n = count();
       $$('[data-list-count]').forEach(function (el) { el.textContent = n; });
     }
@@ -223,6 +224,16 @@
       state[key] = value; apply();
       scrollToEl($('#range'));
     }
+    /* buttons in the scroll story */
+    doc.addEventListener('click', function (e) {
+      var a = e.target.closest('[data-add-id]'), v = e.target.closest('[data-view-id]'), all = e.target.closest('[data-add-routine]');
+      if (a && List) List.toggle(a.getAttribute('data-add-id'));
+      else if (v) openViewer(v.getAttribute('data-view-id'), v);
+      else if (all && List) {
+        all.getAttribute('data-add-routine').split(' ').forEach(function (id) { if (!List.has(id)) List.add(id, true); });
+        toast('The four routine products are in your list');
+      }
+    });
     doc.addEventListener('click', function (e) {
       var b = e.target.closest('[data-filter-brand]'), ty = e.target.closest('[data-filter-type]');
       if (b) { e.preventDefault(); set('brand', b.getAttribute('data-filter-brand')); }
@@ -310,6 +321,7 @@
 
   safe('smooth scroll', setupSmoothScroll);
   safe('cover', setupCover);
+  safe('story', setupStory);
   safe('headings', setupSplits);
   safe('reveals', setupReveals);
   safe('routine', setupRoutine);
@@ -392,6 +404,18 @@
       trigger: '#cards', start: 'top 85%', once: true,
       onEnter: function () { if (!first) return; first = false; gsap.from($$('#cards .card:not(.is-hidden)').slice(0, 8), { y: 40, opacity: 0, duration: 0.9, stagger: 0.06, ease: 'power3.out', clearProps: 'transform,opacity' }); }
     });
+  }
+
+  /* =========================================================
+     THE SCROLL STORY (story.js): hang tag, the drop through NEXERA, one product
+     per step, into the bag. With reduced motion, or if 3D cannot start, the
+     still photos in the page stay.
+     ========================================================= */
+  function setupStory() {
+    var story = $('#story');
+    if (!story || reduce) return;
+    import('./story.js').then(function (m) { return m.start(story); })
+      .catch(function (e) { if (window.console) console.error('[NexEra] scroll story:', e); });
   }
 
   /* =========================================================
@@ -486,7 +510,7 @@
      ========================================================= */
   function setupNavAndBar() {
     var nav = $('#nav'), bar = $('.phonebar'), secs = $$('[data-nav]');
-    var routine = $('#routine'), fin = $('#start'), pending = false;
+    var routine = $('#story') || $('#routine'), fin = $('#start'), pending = false;
     function update() {
       pending = false;
       var theme = null, probe = 34;

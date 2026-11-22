@@ -1,9 +1,10 @@
 /* =========================================================
    NexEra Skin cover: "Your routine, in four steps", in 3D.
-   A drop (the dot from the NexEra logo) falls, four products rise one by one
-   and each does its own small action, the sun rises, and NEXERA grows out of it.
+   A drop (the dot from the NexEra logo) falls, the four featured products
+   (real product photos, stock only) rise one by one and each does a small move,
+   the sun rises, and NEXERA grows out of it.
    ========================================================= */
-import { THREE, makeRenderer, makeScene, buildProduct, makeShadow } from './studio.js';
+import { THREE, makeRenderer, makeScene, makeShadow, photoProduct, tint } from './studio.js';
 
 const gsap = window.gsap, ScrollTrigger = window.ScrollTrigger;
 const $ = (s, c) => (c || document).querySelector(s);
@@ -12,12 +13,10 @@ const lerp = (a, b, t) => a + (b - a) * t;
 const clamp01 = t => Math.min(1, Math.max(0, t));
 const ease = t => 1 - Math.pow(1 - t, 3);
 
-const SPECS = [
-  { shape: 'pump', tone: 'aqua', cap: 'ink', word: 'CLEANSER', small: 'Step 01', typeWord: 'cleanser', name: 'Cleanse' },
-  { shape: 'dropper', tone: 'amber', cap: 'gold', word: 'SERUM', small: 'Step 02', typeWord: 'serum', name: 'Treat' },
-  { shape: 'jar', tone: 'blush', cap: 'white', word: 'CREAM', small: 'Step 03', typeWord: 'moisturiser', name: 'Moisturise' },
-  { shape: 'tube', tone: 'sun', cap: 'silver', word: 'SUN', small: 'SPF 50', typeWord: 'sunscreen', name: 'Protect' }
-];
+const DATA = window.NEXERA_SKIN;
+const STEP = {}; DATA.STEPS.forEach(s => { STEP[s.id] = s; });
+/* one featured product per step, in routine order */
+const SPECS = DATA.FEATURED.map(p => ({ p, n: STEP[p.step].n, name: STEP[p.step].name }));
 
 function gradientTexture(stops, radial) {
   const c = document.createElement('canvas'); c.width = c.height = 256;
@@ -66,12 +65,12 @@ export async function start(hero, opts = {}) {
   const ringMat = () => new THREE.MeshBasicMaterial({ color: '#ff9a6a', transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false });
   const ripples = [0, 1, 2, 3, 4].map(() => { const m = new THREE.Mesh(new THREE.RingGeometry(0.92, 1, 72), ringMat()); m.rotation.x = -Math.PI / 2; m.position.y = 0.01; scene.add(m); return m; });
 
-  const items = SPECS.map(spec => {
-    const model = buildProduct(spec);
-    const holder = new THREE.Group(); holder.add(model.group); scene.add(holder);
-    const box = new THREE.Box3().setFromObject(model.group), size = box.getSize(new THREE.Vector3());
-    const shadow = makeShadow(Math.max(size.x, size.z) * 0.85, 0.55); scene.add(shadow);
-    return { spec, model, holder, shadow, size, base: new THREE.Vector3(), scale: 1, rest: 0 };
+  const stands = await Promise.all(SPECS.map(spec => photoProduct(spec.p, { maxH: 4.2, maxW: 2.25, renderer })));
+  const items = SPECS.map((spec, i) => {
+    const stand = stands[i], prod = stand.userData.product;
+    const holder = new THREE.Group(); holder.add(stand); scene.add(holder);
+    const shadow = makeShadow(Math.max(stand.userData.width * 0.62, 0.9), 0.55); scene.add(shadow);
+    return { spec, stand, prod, holder, shadow, h: stand.userData.height, base: new THREE.Vector3(), scale: 1, rest: 0 };
   });
   const bubbleMat = new THREE.MeshPhysicalMaterial({ color: '#ffffff', roughness: 0.05, transparent: true, opacity: 0.75, clearcoat: 1, transmission: 0 });
   const bubbles = [0, 1, 2, 3].map(i => { const b = new THREE.Mesh(new THREE.SphereGeometry(0.09 + i * 0.025, 20, 20), bubbleMat); b.visible = false; scene.add(b); return b; });
@@ -81,8 +80,8 @@ export async function start(hero, opts = {}) {
   /* ----- layout for phones (portrait) and wider screens ----- */
   const g = { W: 1, H: 1, portrait: false, target: new THREE.Vector3(), d: 20 };
   const LAYOUT = {
-    wide: { x: [-3.6, -1.35, 1.05, 3.5], z: [0.2, -0.35, -0.35, 0.2], s: [1, 1.05, 1.15, 0.98], rest: [0.28, 0.12, -0.1, -0.3], screenY: 0.665, fill: 0.31 },
-    tall: { x: [-2.3, -1.02, 0.5, 2.05], z: [0.25, -0.2, -0.25, 0.25], s: [0.62, 0.66, 0.66, 0.62], rest: [0.3, 0.12, -0.1, -0.3], screenY: 0.61, fill: 0.2 }
+    wide: { x: [-3.75, -1.3, 1.25, 3.7], z: [0.2, -0.35, -0.35, 0.2], s: [1, 1, 1, 1], rest: [0.3, 0.12, -0.12, -0.3], screenY: 0.665, fill: 0.31 },
+    tall: { x: [-2.25, -0.78, 0.75, 2.25], z: [0.25, -0.2, -0.25, 0.25], s: [0.6, 0.6, 0.6, 0.6], rest: [0.3, 0.12, -0.12, -0.3], screenY: 0.61, fill: 0.2 }
   };
   const stepEls = $$('.hero__step', hero);
   function layout() {
@@ -134,6 +133,9 @@ export async function start(hero, opts = {}) {
     scene.fog.color.copy(fogNight).lerp(fogDawn, S.warm * 0.85);
     rim.intensity = 1.2 + S.warm * 1.6; rim.color.setRGB(1, lerp(0.7, 0.62, S.warm), lerp(0.48, 0.5, S.warm));
     key.intensity = 1.3 + S.warm * 0.4;
+    /* the photos are dim and blue at night and take on the morning light */
+    const w = S.warm;
+    items.forEach(it => tint(it.stand, lerp(0.5, 1, w), lerp(0.53, 0.985, w), lerp(0.68, 0.955, w)));
 
     /* the drop */
     drop.visible = S.fall > 0 && S.land < 1;
@@ -156,43 +158,42 @@ export async function start(hero, opts = {}) {
       const spread = 1 + S.exit * 0.5;
       const bob = idle * Math.sin(t * 1.3 + i * 1.7) * 0.07;
       it.holder.position.set(it.base.x * spread, lerp(-6, 0, e) + bob + S.exit * (3 + i * 0.6), it.base.z);
-      it.holder.rotation.y = lerp(-2.2, it.rest, e) + idle * Math.sin(t * 0.5 + i) * 0.12 + S.exit * (i % 2 ? 0.8 : -0.8);
+      it.holder.scale.setScalar(it.scale);
+      it.prod.rotation.set(0, lerp(-2.2, it.rest, e) + idle * Math.sin(t * 0.5 + i) * 0.12 + S.exit * (i % 2 ? 0.8 : -0.8), 0);
       it.holder.visible = r > 0.001;
       it.shadow.position.set(it.base.x * spread, 0.006, it.base.z);
       it.shadow.material.opacity = 0.55 * e * (1 - S.exit);
       it.shadow.scale.setScalar(it.scale * (1 - Math.min(0.4, bob * 2)));
     });
-    /* 01 cleanse: the pump presses and foam bubbles float up */
-    const pump = items[0];
-    pump.model.rig.head.position.y = -0.28 * Math.sin(Math.PI * S.press);
-    pump.model.rig.head.updateMatrixWorld(true);
-    const headWorld = pump.model.rig.head.localToWorld(new THREE.Vector3(1.0, pump.model.height - 0.3, 0));
+    /* 01 cleanse: the bottle gives a squeeze and foam bubbles float up from the top */
+    const cl = items[0], sq = Math.sin(Math.PI * S.press);
+    cl.stand.scale.set(1 + sq * 0.05, 1 - sq * 0.08, 1 + sq * 0.05);
+    const top = new THREE.Vector3(cl.holder.position.x + 0.25 * cl.scale, cl.holder.position.y + cl.h * cl.scale + 0.05, cl.holder.position.z);
     bubbles.forEach((b, i) => {
       const k = clamp01(S.bubbles * 1.6 - i * 0.18);
       b.visible = k > 0 && k < 1;
-      b.position.set(headWorld.x + Math.sin(k * 6 + i) * 0.18 + i * 0.08, headWorld.y + k * (1.6 + i * 0.3), headWorld.z);
-      b.scale.setScalar((0.6 + k * 0.8) * pump.scale);
+      b.position.set(top.x + Math.sin(k * 6 + i) * 0.18 + i * 0.08, top.y + k * (1.6 + i * 0.3), top.z);
+      b.scale.setScalar((0.6 + k * 0.8) * cl.scale);
     });
-    /* 02 treat: the dropper lifts and a drop falls */
-    const dr = items[1];
-    dr.model.rig.pipette.position.y = dr.model.rig.pipette.userData.home.y + S.lift * 1.25;
+    /* 02 treat: the serum lifts and tips, and a drop falls to the floor */
+    const tr = items[1];
+    tr.holder.position.y += S.lift * 0.9 * tr.scale;
+    tr.prod.rotation.z = -S.lift * 0.22;
     if (S.dripT > 0 && S.dripT < 1) {
-      dr.model.rig.tip.updateMatrixWorld(true);
-      const tip = dr.model.rig.tip.getWorldPosition(new THREE.Vector3());
       drip.visible = true;
-      const fall = S.dripT * S.dripT;
-      drip.position.set(tip.x, lerp(tip.y - 0.12, 0.08, fall), tip.z);
-      drip.scale.setScalar(dr.scale * (S.dripT < 0.12 ? S.dripT / 0.12 : 1));
+      const fall = S.dripT * S.dripT, from = tr.holder.position.y + 0.1;
+      drip.position.set(tr.holder.position.x + 0.15 * tr.scale, lerp(from, 0.08, fall), tr.holder.position.z + 0.3);
+      drip.scale.setScalar(tr.scale * (S.dripT < 0.12 ? S.dripT / 0.12 : 1));
     } else drip.visible = false;
-    /* 03 moisturise: the lid unscrews and hovers */
-    const lid = items[2].model.rig.lid;
-    lid.position.y = Math.sin(Math.min(1, S.lid) * Math.PI / 2) * 1.15 * (S.lid > 1 ? 2 - S.lid : 1);
-    lid.rotation.y = Math.min(1, S.lid) * Math.PI * 2.5 * (S.lid > 1 ? 2 - S.lid : 1);
-    lid.rotation.x = Math.sin(Math.min(1, S.lid) * Math.PI) * 0.22;
-    /* 04 protect: the tube hops and spins as the sun comes up */
+    /* 03 moisturise: the jar lifts and turns a full circle */
+    const mo = items[2], lk = Math.min(1, S.lid);
+    mo.holder.position.y += Math.sin(lk * Math.PI / 2) * 0.55 * mo.scale * (S.lid > 1 ? 2 - S.lid : 1);
+    mo.prod.rotation.y += (S.lid / 2) * Math.PI * 2;
+    /* 04 protect: the sunscreen hops and spins as the sun comes up */
     const tb = items[3];
     tb.holder.position.y += Math.sin(Math.PI * S.hop) * 0.9;
-    tb.holder.rotation.y += S.hop * Math.PI * 2;
+    tb.prod.rotation.y += S.hop * Math.PI * 2;
+    items.forEach(it => it.prod.userData.updateSheen());
 
     /* the sun */
     sun.position.lerpVectors(g.sunStart, g.sunEnd, ease(S.sun));
@@ -293,7 +294,7 @@ export async function start(hero, opts = {}) {
       tl.fromTo(S.rise, { [i]: 0 }, { [i]: 1, duration: 0.95, ease: 'back.out(1.25)' }, at)
         .fromTo(S.ripple, { [i + 1]: 0 }, { [i + 1]: 1, duration: 1.1, ease: 'power2.out' }, at)
         .fromTo(S.label, { [i]: 0 }, { [i]: 1, duration: 0.5 }, at + 0.35)
-        .call(() => kicker(spec.small.replace('Step ', '').replace('SPF 50', '04') + ' · ' + spec.name), null, at + 0.1);
+        .call(() => kicker(spec.n + ' · ' + spec.name), null, at + 0.1);
     });
     tl.call(() => kicker('01 · Cleanse'), null, 1.1)
       .to(S, { press: 1, duration: 0.5, ease: 'power1.inOut' }, 1.55)
