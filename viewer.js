@@ -1,20 +1,21 @@
 /* =========================================================
    NexEra Skin 3D product view
-   The product is the brand's real photo, turned into a thick 3D card
-   (product-image-3d.js). Nothing is drawn.
+   The product is a solid pack built from the brand's real photo
+   (product-3d.js): real width, height and depth, the photo wrapped round the
+   front, the back photo (or the pack's own side colours) on the back.
    - entrance (glow, faint word, the product rises with a turn, then its details)
-   - drag to turn (momentum, spring back), Front / Side (about 60°),
-     Back only when a back-of-pack photo exists, arrow keys
-   - without a back photo, turning stops at about 70° each way
+   - drag to turn all the way round (momentum, spring back), Front, Side, Back, Top, arrow keys
+   - the pack's volume and size (estimated sizes are labelled as estimates)
    - How this step works (the skin diagram for the product's routine step)
    One scene at a time; everything is freed when the view closes.
    ========================================================= */
-import { THREE, makeRenderer, makeScene, makeShadow, photoProduct, dispose, PHONE } from './studio.js';
+import { THREE, makeRenderer, makeScene, makeShadow, packProduct, packOf, dispose, PHONE } from './studio.js';
 
 const gsap = window.gsap;
 const $ = (s, c) => (c || document).querySelector(s);
 const $$ = (s, c) => Array.from((c || document).querySelectorAll(s));
-const IDLE = 3000, TAU = Math.PI * 2, SIDE = Math.PI / 3, LIMIT = THREE.MathUtils.degToRad(70), TILT = 0.18, REST = -0.22;
+const IDLE = 3000, TAU = Math.PI * 2, TILT = 1.3, REST = -0.42;
+const VIEWS = { front: [0, 0.05], side: [Math.PI / 2, 0.05], back: [Math.PI, 0.05], top: [0.4, 1.15] };
 const damp = (a, b, k, dt) => a + (b - a) * (1 - Math.exp(-k * dt));
 const STEP_NAMES = { cleanse: ['01', 'Cleanse'], treat: ['02', 'Treat'], moisturise: ['03', 'Moisturise'], protect: ['04', 'Protect'] };
 
@@ -27,7 +28,7 @@ export function open(p, opts = {}) {
   const theme = (window.NEXERA_SKIN.THEME || {})[p.brand] || { ingredient: '#f2ca99' };
   const ui = {
     stage: $('.pv__stage', pv), still: $('.pv__still', pv), replay: $('[data-pv-replay]', pv), add: $('[data-pv-add]', pv), ask: $('[data-pv-ask]', pv),
-    close: $('[data-pv-close]', pv), panel: $('.pv__panel', pv), loading: $('.pv__loading', pv), back: $('[data-angle="back"]', pv)
+    close: $('[data-pv-close]', pv), panel: $('.pv__panel', pv), loading: $('.pv__loading', pv)
   };
 
   /* ----- the panel ----- */
@@ -42,7 +43,9 @@ export function open(p, opts = {}) {
   ui.ask.href = opts.ask || ui.ask.href;
   const syncAdd = () => { const on = opts.inList && opts.inList(); ui.add.setAttribute('aria-pressed', on ? 'true' : 'false'); ui.add.textContent = on ? 'In your list' : 'Add to list'; };
   syncAdd();
-  ui.back.hidden = !p.back;
+  const k = packOf(p), d = k.dims;
+  const cm = v => String(Math.round(v / 5) / 2);
+  $('.pv__dims', pv).textContent = [k.size, d && d.h ? (k.est ? 'About ' : '') + cm(d.h) + ' × ' + cm(d.w) + ' × ' + cm(d.d) + ' cm' + (k.est ? ' (estimated from the volume)' : '') : ''].filter(Boolean).join(' · ');
 
   const [num, stepName] = STEP_NAMES[p.step] || ['', ''];
   $('.pv__how-step', pv).textContent = num + ' ' + stepName + ':';
@@ -114,7 +117,7 @@ export function open(p, opts = {}) {
   resize();
   const ro = new ResizeObserver(resize); ro.observe(ui.stage); state.ro = ro;
 
-  photoProduct(p, { maxH: 3, maxW: 2.6, renderer }).then(stand => {
+  packProduct(p, { height: 3 }).then(stand => {
     if (!state.alive) { dispose(stand); return; }
     build(state, stand);
   }).catch(() => { if (state.alive) showStill(state); });
@@ -123,16 +126,15 @@ export function open(p, opts = {}) {
 function build(state, stand) {
   const { ui, renderer, scene, cam, reduce, canvas } = state;
   const on = (el, ev, fn, o) => { el.addEventListener(ev, fn, o); state.listeners.push([el, ev, fn, o]); };
-  const prod = stand.userData.product, size = { x: stand.userData.width, y: stand.userData.height };
-  const free = stand.userData.hasBack;
+  const prod = stand.userData.product, size = { x: stand.userData.width, y: stand.userData.height, z: stand.userData.depth };
   const lift = new THREE.Group(); lift.add(stand); scene.add(lift);
-  const shadow = makeShadow(Math.max(size.x * 0.6, 0.8), 0.5); scene.add(shadow);
+  const shadow = makeShadow(Math.max(size.x, size.z) * 0.6 + 0.3, 0.5); scene.add(shadow);
   Object.assign(state, { lift, shadow, stand });
 
   const R = { yaw: REST, pitch: 0, vyaw: 0, vpitch: 0, rest: REST, enter: reduce ? 1 : 0, lastTouch: 0 };
   state.R = R;
-  const clampYaw = y => free ? y : Math.max(-LIMIT, Math.min(LIMIT, y));
-  const nearest = (from, to) => free ? to + Math.round((from - to) / TAU) * TAU : to;
+  const clampYaw = y => y;
+  const nearest = (from, to) => to + Math.round((from - to) / TAU) * TAU;
 
   /* ----- turning ----- */
   let drag = null;
@@ -148,20 +150,20 @@ function build(state, stand) {
     const dx = e.clientX - drag.x, dy = e.clientY - drag.y, now = performance.now(), dt = Math.max(1, now - drag.t) / 1000;
     drag.x = e.clientX; drag.y = e.clientY; drag.t = now;
     const k = 4.2 / Math.max(320, state.w || 600);
-    R.yaw = clampYaw(R.yaw + dx * k); R.pitch = Math.max(-TILT, Math.min(TILT, R.pitch + dy * k * 0.5));
-    R.vyaw = dx * k / dt; R.vpitch = dy * k * 0.5 / dt; R.lastTouch = now;
+    R.yaw = clampYaw(R.yaw + dx * k); R.pitch = Math.max(-0.5, Math.min(TILT, R.pitch + dy * k * 0.8));
+    R.vyaw = dx * k / dt; R.vpitch = dy * k * 0.8 / dt; R.lastTouch = now;
   });
   const end = () => { drag = null; R.lastTouch = performance.now(); };
   on(canvas, 'pointerup', end); on(canvas, 'pointercancel', end);
   on(canvas, 'wheel', e => { e.preventDefault(); R.yaw = clampYaw(R.yaw + e.deltaX * 0.004); R.lastTouch = performance.now(); }, { passive: false });
   $$('[data-angle]', pv).forEach(b => on(b, 'click', () => {
     const a = b.getAttribute('data-angle');
-    const yaw = { front: 0, side: SIDE, back: Math.PI }[a];
-    if (yaw == null) return;
+    const v = VIEWS[a];
+    if (!v) return;
     R.vyaw = 0; R.vpitch = 0;
-    const to = nearest(R.yaw, yaw);
-    if (gsap && !reduce) gsap.to(R, { yaw: to, pitch: 0, duration: 0.9, ease: 'power3.out', overwrite: 'auto' });
-    else { R.yaw = to; R.pitch = 0; }
+    const to = nearest(R.yaw, v[0]);
+    if (gsap && !reduce) gsap.to(R, { yaw: to, pitch: v[1], duration: 0.9, ease: 'power3.out', overwrite: 'auto' });
+    else { R.yaw = to; R.pitch = v[1]; }
     R.lastTouch = performance.now() + 2500;
     $$('[data-angle]', pv).forEach(x => x.classList.toggle('is-on', x === b));
   }));
@@ -193,8 +195,7 @@ function build(state, stand) {
     /* momentum, then spring back after a few seconds of no touching */
     if (!drag && !(gsap && gsap.isTweening(R))) {
       R.yaw = clampYaw(R.yaw + R.vyaw * dt); R.vyaw *= Math.exp(-4 * dt);
-      if (!free && Math.abs(R.yaw) >= LIMIT) R.vyaw = 0;
-      R.pitch = Math.max(-TILT, Math.min(TILT, R.pitch + R.vpitch * dt)); R.vpitch *= Math.exp(-5 * dt);
+      R.pitch = Math.max(-0.5, Math.min(TILT, R.pitch + R.vpitch * dt)); R.vpitch *= Math.exp(-5 * dt);
       if (now - R.lastTouch > IDLE) {
         R.yaw = damp(R.yaw, nearest(R.yaw, R.rest), 2.2, dt);
         R.pitch = damp(R.pitch, 0, 2.2, dt);
@@ -202,13 +203,12 @@ function build(state, stand) {
       }
     }
     const e = R.enter, idle = reduce ? 0 : Math.sin(now / 900) * 0.035;
-    prod.rotation.set(R.pitch, R.yaw + (1 - e) * -1.15, 0);
-    prod.userData.updateSheen();
+    prod.rotation.set(R.pitch, R.yaw + (1 - e) * -2.4, 0);
     lift.position.y = (1 - e) * -size.y * 0.9 + idle * e;
     shadow.material.opacity = 0.5 * e;
 
     /* camera: frame the product, leaving room for the buttons along the bottom */
-    const span = Math.max(size.y, size.x * 1.15);
+    const span = Math.max(size.y, size.x * 1.15, size.z * 1.15);
     const vt = Math.tan(THREE.MathUtils.degToRad(cam.fov / 2));
     const room = 1 - Math.min(0.3, 120 / Math.max(300, state.h || 600));
     const dist = Math.max(span * 1.25 / (2 * vt * room), span * 1.25 / (2 * vt * cam.aspect));

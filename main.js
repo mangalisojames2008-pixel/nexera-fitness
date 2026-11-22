@@ -83,10 +83,11 @@
     function has(id) { return items.some(function (i) { return i.id === id; }); }
     function syncButtons() {
       function sync(b, id) {
-        var on = has(id);
+        var on = has(id), label = $('span:not(.sr-only)', b), icon = $('use', b), hidden = $('.sr-only', b);
         b.setAttribute('aria-pressed', on ? 'true' : 'false');
-        $('span', b).textContent = on ? 'In your list' : 'Add to list';
-        $('use', b).setAttribute('href', on ? '#i-check' : '#i-plus');
+        if (label) label.textContent = on ? 'In your list' : 'Add to list';
+        if (hidden) hidden.textContent = on ? 'In your list' : 'Add to list';
+        if (icon) icon.setAttribute('href', on ? '#i-check' : '#i-plus');
       }
       $$('.card').forEach(function (c) { var b = $('[data-add]', c); if (b) sync(b, c.getAttribute('data-id')); });
       $$('[data-add-id]').forEach(function (b) { sync(b, b.getAttribute('data-add-id')); });
@@ -177,6 +178,8 @@
       else fallback();
     });
     render();
+    /* the site's cart, for scripts that call window.addToCart(product) */
+    window.addToCart = function (p) { if (p && byId[p.id]) add(p.id); };
     return { add: add, toggle: toggle, has: has, open: open, close: close };
   });
 

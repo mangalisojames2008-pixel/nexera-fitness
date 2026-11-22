@@ -6,6 +6,7 @@
 - **Fonts:** Sora, DM Sans and JetBrains Mono from Google Fonts, SIL Open Font License.
 - **Logo:** NexEra's own logo files, copied from the store (`../nexera/assets/`).
 - **Product photos:** the brands' own packshots, from africa.garnier.com, africa.cerave.com, cerave.co.uk, eucerin.co.za, eucerin.co.uk and avene.co.uk. The source page of each is in `skincare_products.json`. They belong to the brands. The cut-out versions (`assets/cutouts/`) and the 3D views are made from them (background removed with rembg, MIT License).
-- **Cover, scroll story, skin diagrams and the bag:** made in code for NexEra (`cover.js`, `story.js`, `product-image-3d.js`, `tools/build.js`). No stock images.
+- **3D packs:** `pack-geometry.js` and `product-3d.js` (from the owner's 3D update) build each pack from its photo. The CeraVe Hydrating Cleanser back photo is from africa.cerave.com.
+- **Cover, scroll story, shop, skin diagrams and the bag:** made in code for NexEra (`cover.js`, `story.js`, `tools/build.js`). No stock images.
 - **Brands:** Garnier, CeraVe, Eucerin and Avène (Eau Thermale Avène) are trademarks of their owners. NexEra is an independent retailer, not connected to or endorsed by them. Product names come from the owner's product list.
 - **Facts:** "SPF 30 filters about 97% of UVB rays, SPF 50 about 98%": The Skin Cancer Foundation, https://www.skincancer.org/press/the-skin-cancer-foundation-offers-tips-on-choosing-and-using-sunscreen-2/ . "SPF 20 to 50, and 30 to 50 for fair skin": CANSA, Be SunSmart, https://cansa.org.za/be-sunsmart/

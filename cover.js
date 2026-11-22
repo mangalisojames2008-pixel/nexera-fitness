@@ -1,10 +1,11 @@
 /* =========================================================
    NexEra Skin cover: "Your routine, in four steps", in 3D.
    A drop (the dot from the NexEra logo) falls, the four featured products
-   (real product photos, stock only) rise one by one and each does a small move,
+   (solid packs made from the real product photos, stock only, in their real
+   relative sizes) rise one by one and each does a small move,
    the sun rises, and NEXERA grows out of it.
    ========================================================= */
-import { THREE, makeRenderer, makeScene, makeShadow, photoProduct, tint } from './studio.js';
+import { THREE, makeRenderer, makeScene, makeShadow, packProduct, packOf, tint } from './studio.js';
 
 const gsap = window.gsap, ScrollTrigger = window.ScrollTrigger;
 const $ = (s, c) => (c || document).querySelector(s);
@@ -74,11 +75,13 @@ export async function start(hero, opts = {}) {
   const ringMat = () => new THREE.MeshBasicMaterial({ color: C.ripple, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false });
   const ripples = [0, 1, 2, 3, 4].map(() => { const m = new THREE.Mesh(new THREE.RingGeometry(0.92, 1, 72), ringMat()); m.rotation.x = -Math.PI / 2; m.position.y = 0.01; scene.add(m); return m; });
 
-  const stands = await Promise.all(SPECS.map(spec => photoProduct(spec.p, { maxH: 4.2, maxW: 2.25, renderer })));
+  /* real relative sizes: the tallest pack is 4.3 units, the others follow their size in mm */
+  const tallest = Math.max(...SPECS.map(spec => (packOf(spec.p).dims || { h: 150 }).h));
+  const stands = await Promise.all(SPECS.map(spec => packProduct(spec.p, { mmScale: 4.3 / tallest, height: 3 })));
   const items = SPECS.map((spec, i) => {
     const stand = stands[i], prod = stand.userData.product;
     const holder = new THREE.Group(); holder.add(stand); scene.add(holder);
-    const shadow = makeShadow(Math.max(stand.userData.width * 0.62, 0.9), 0.55); scene.add(shadow);
+    const shadow = makeShadow(Math.max(stand.userData.width, stand.userData.depth) * 0.62 + 0.25, 0.55); scene.add(shadow);
     return { spec, stand, prod, holder, shadow, h: stand.userData.height, base: new THREE.Vector3(), scale: 1, rest: 0 };
   });
   const bubbleMat = new THREE.MeshPhysicalMaterial({ color: '#ffffff', roughness: 0.05, transparent: true, opacity: 0.75, clearcoat: 1, transmission: 0 });
@@ -202,7 +205,6 @@ export async function start(hero, opts = {}) {
     const tb = items[3];
     tb.holder.position.y += Math.sin(Math.PI * S.hop) * 0.9;
     tb.prod.rotation.y += S.hop * Math.PI * 2;
-    items.forEach(it => it.prod.userData.updateSheen());
 
     /* the sun */
     sun.position.lerpVectors(g.sunStart, g.sunEnd, ease(S.sun));

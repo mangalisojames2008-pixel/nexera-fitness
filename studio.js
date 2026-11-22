@@ -1,17 +1,23 @@
 /* =========================================================
    NexEra Skin studio: the renderer, lights and soft shadows shared by
-   the cover and the 3D product view. The products themselves are the
-   brands' real photos (product-image-3d.js); nothing is drawn here.
+   the cover and the 3D product view. The products themselves are solid
+   packs built from the brands' real photos (product-3d.js); nothing is drawn here.
    ========================================================= */
 import * as THREE from './vendor/three.module.min.js';
 import { RoomEnvironment } from './vendor/RoomEnvironment.js';
-import { createProduct, cutOut } from './product-image-3d.js';
+import { createPack, shapeFor } from './product-3d.js';
 
 export { THREE };
 
-/* Phones get lighter products (fewer side layers) and a lower pixel ratio. */
+/* Phones get lighter packs (fewer outline rows and segments) and a lower pixel ratio. */
 export const PHONE = matchMedia('(max-width: 760px), (pointer: coarse)').matches;
-export const LAYERS = PHONE ? 8 : 16;
+export const DETAIL = PHONE ? { rows: 120, segments: 48 } : { rows: 200, segments: 72 };
+
+/* A product's pack data (shape, volume, size in mm, back photo), from packs.js. */
+export function packOf(p) {
+  const k = (window.NEXERA_PACKS || {})[p.id] || {};
+  return { shape: k.shape || shapeFor({ name: p.name, category: p.typeName }), dims: k.dims || null, size: k.size || null, est: k.est !== false, back: k.back ? 'assets/cutouts/back/' + p.id + '.webp' : null };
+}
 
 export function makeRenderer(canvas, opts = {}) {
   const r = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance', preserveDrawingBuffer: !!opts.preserve });
@@ -49,33 +55,27 @@ export function makeShadow(radius = 1.4, opacity = 0.45) {
   return m;
 }
 
-/* A product photo in 3D, sized to fit a box (tall bottles and wide jars come out in proportion),
-   standing on y = 0. The photo keeps its true colours (no tone mapping). */
-export async function photoProduct(p, { maxH = 4, maxW = 2.3, renderer = null, layers = LAYERS, depth } = {}) {
-  const photo = await cutOut(p.img);
-  const aspect = photo.width / photo.height;
-  const height = Math.min(maxH, maxW / aspect);
-  const group = await createProduct(p.img, { height, layers, renderer, depth: depth || Math.min(0.42, 0.12 + height * 0.06), backUrl: p.back || null });
-  group.traverse(o => { if (o.material) { o.material.toneMapped = false; if (o.material.color) o.material.userData.base = o.material.color.clone(); } });
-  group.position.y = height / 2;
-  const stand = new THREE.Group(); stand.add(group);
-  stand.userData = { product: group, width: height * aspect, height, depth: group.userData.depth, hasBack: !!p.back };
+/* A product as a solid pack built from its photo, standing on y = 0.
+   height: world units tall (or mmScale: world units per mm, for real relative sizes). */
+export async function packProduct(p, { height = 3, mmScale = 0, shadow = false } = {}) {
+  const k = packOf(p);
+  const h = mmScale && k.dims && k.dims.h ? k.dims.h * mmScale : height;
+  const pack = await createPack(p.img, { shape: k.shape, dims: k.dims, backSrc: k.back, height: h, shadow, rows: DETAIL.rows, segments: DETAIL.segments });
+  pack.position.y = h / 2;
+  const stand = new THREE.Group(); stand.add(pack);
+  const sz = pack.userData.size;
+  stand.userData = { product: pack, width: sz.width, height: sz.height, depth: sz.depth, info: k };
   return stand;
 }
 
-/* Darken or warm a product photo (for the night-to-dawn cover). */
-export function tint(stand, r, g, b) {
-  stand.userData.product.traverse(o => {
-    const m = o.material; if (!m || !m.color || !m.userData.base) return;
-    m.color.setRGB(m.userData.base.r * r, m.userData.base.g * g, m.userData.base.b * b);
-  });
-}
+/* Darken or warm a pack (for the dusk-to-golden-hour cover). */
+export function tint(stand, r, g, b) { stand.userData.product.userData.setTint(r, g, b); }
 
-/* Free GPU memory when a scene closes (product photo textures are shared, so they stay). */
+/* Free GPU memory when a scene closes. */
 export function dispose(root) {
   root.traverse(o => {
     if (o.geometry) o.geometry.dispose();
     const m = o.material; if (!m) return;
-    (Array.isArray(m) ? m : [m]).forEach(mm => mm.dispose());
+    (Array.isArray(m) ? m : [m]).forEach(mm => { if (mm.uniforms && mm.uniforms.map && mm.uniforms.map.value) mm.uniforms.map.value.dispose(); mm.dispose(); });
   });
 }
