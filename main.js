@@ -13,6 +13,7 @@
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var hasGsap = typeof window.gsap !== 'undefined' && typeof window.ScrollTrigger !== 'undefined';
   var lenis = null, cover = null, heroState = { flood: 0 };
+  var storyStart = null; /* set by the scroll story; called once the cover's 3D is ready */
   var byId = {};
   DATA.PRODUCTS.forEach(function (p) { byId[p.id] = p; });
 
@@ -259,6 +260,15 @@
       var sentinel = doc.createElement('div'); sentinel.style.height = '1px';
       filters.parentNode.insertBefore(sentinel, filters);
       new IntersectionObserver(function (en) { filters.classList.toggle('is-stuck', !en[0].isIntersecting); }, { rootMargin: '-' + (70) + 'px 0px 0px 0px' }).observe(sentinel);
+      /* phones: once the filters have scrolled away, a small pinned button brings you back to them */
+      var pin = $('.filters-pin');
+      if (pin) {
+        new IntersectionObserver(function (en) { pin.classList.toggle('is-on', !en[0].isIntersecting && en[0].boundingClientRect.top < 0); }, { rootMargin: '-70px 0px 0px 0px' }).observe(filters);
+        $('button', pin).addEventListener('click', function () {
+          var y = filters.getBoundingClientRect().top + window.scrollY - 72;
+          if (lenis) lenis.scrollTo(y, { duration: 1 }); else window.scrollTo({ top: y, behavior: reduce ? 'auto' : 'smooth' });
+        });
+      }
     }
     apply();
     return { set: set };
@@ -353,8 +363,8 @@
         onReady: function () { clearTimeout(fallback); settled = true; },
         state: heroState
       });
-    }).then(function (api) { cover = api; })
-      .catch(function (e) { if (window.console) console.error('[NexEra] 3D cover:', e); still(); });
+    }).then(function (api) { cover = api; if (storyStart) storyStart(); })
+      .catch(function (e) { if (window.console) console.error('[NexEra] 3D cover:', e); still(); if (storyStart) storyStart(); });
   }
 
   /* =========================================================
@@ -406,8 +416,17 @@
   function setupStory() {
     var story = $('#story');
     if (!story || reduce) return;
-    import('./story.js').then(function (m) { return m.start(story); })
-      .catch(function (e) { if (window.console) console.error('[NexEra] scroll story:', e); });
+    /* the story's 3D waits until the cover's 3D is ready (or the visitor starts scrolling),
+       so the two do not compete for the phone's processor at start-up */
+    var started = false;
+    function go() {
+      if (started) return; started = true;
+      import('./story.js').then(function (m) { return m.start(story); })
+        .catch(function (e) { if (window.console) console.error('[NexEra] scroll story:', e); });
+    }
+    storyStart = function () { if (window.requestIdleCallback) requestIdleCallback(go, { timeout: 2000 }); else setTimeout(go, 500); };
+    window.addEventListener('scroll', function onScroll() { if (window.scrollY > 8) { window.removeEventListener('scroll', onScroll); go(); } }, { passive: true });
+    window.addEventListener('load', function () { setTimeout(storyStart, 8000); });
   }
 
   /* =========================================================

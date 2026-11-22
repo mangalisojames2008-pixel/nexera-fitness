@@ -65,6 +65,8 @@ export async function start(hero, opts = {}) {
   const sunDisc = new THREE.Mesh(new THREE.CircleGeometry(1, 64), new THREE.MeshBasicMaterial({ map: dawnTex, fog: false, toneMapped: false, transparent: true }));
   const sunGlow = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, blending: THREE.AdditiveBlending, depthWrite: false, fog: false, toneMapped: false, transparent: true }));
   sunGlow.scale.set(5, 5, 1);
+  /* the glow sits just behind the disc, so the disc always covers it (no line across the sun) */
+  sunGlow.position.z = -0.5;
   sun.add(sunGlow, sunDisc); scene.add(sun);
 
   const drop = new THREE.Group();
@@ -119,7 +121,7 @@ export async function start(hero, opts = {}) {
     const h = new THREE.Vector3(0, 0, -34).project(cam);
     hero.style.setProperty('--hz', clamp01((1 - h.y) / 2).toFixed(3));
     /* the sun sits just above the products, between them */
-    g.sunEnd = worldAt(0.5, g.portrait ? 0.43 : 0.47, -24);
+    g.sunEnd = worldAt(0.5, g.portrait ? 0.43 : 0.53, -24); /* wide screens: low enough to clear the word */
     g.sunStart = new THREE.Vector3(g.sunEnd.x, -6, -24);
     g.sunR = g.portrait ? 2.6 : 3.4;
   }
@@ -243,7 +245,7 @@ export async function start(hero, opts = {}) {
     raf = 0;
     draw(now);
     if (firstFrame) { firstFrame = false; hero.classList.add('is-3d'); }
-    const busy = (tl && tl.isActive()) || now < awakeUntil;
+    const busy = (tl && tl.isActive()) || (greet && greet.isActive()) || now < awakeUntil;
     if (running && busy) raf = requestAnimationFrame(frame); else running = false;
   }
   function wake(ms) { awakeUntil = Math.max(awakeUntil, performance.now() + (ms || 2500)); startLoop(); }
@@ -261,7 +263,7 @@ export async function start(hero, opts = {}) {
     wordWrap: $('.hero__word-wrap', hero), word: $('.word', hero), letters: $$('.word__l', hero), copy: $('.hero__copy', hero),
     ctas: $$('.hero__ctas .btn', hero), skip: $('.hero__skip', hero), skipLabel: $('.hero__skip-label', hero), scroll: $('.hero__scroll', hero), nav: $('#nav')
   };
-  let tl = null, ended = false;
+  let tl = null, ended = false, greet = null;
 
   function finalState() {
     S.fall = 1; S.land = 1; S.rise = [1, 1, 1, 1]; S.label = [1, 1, 1, 1]; S.press = 0; S.bubbles = 0; S.lift = 0; S.dripT = 0; S.lid = 0; S.hop = 0;
@@ -288,7 +290,6 @@ export async function start(hero, opts = {}) {
     els.skip.hidden = false;
     tl = gsap.timeline({ paused: true, defaults: { ease: 'power2.out' } });
     tl.to(els.fade, { opacity: 0, duration: 0.9, ease: 'power1.out' }, 0)
-      .fromTo(els.nav, { autoAlpha: 0, y: -12 }, { autoAlpha: 1, y: 0, duration: 0.6, immediateRender: true }, 6.0)
       .fromTo(els.kicker, { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.6 }, 0.3)
       .fromTo(els.skip, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.4 }, 0.5)
       /* the drop falls and lands */
@@ -326,6 +327,7 @@ export async function start(hero, opts = {}) {
   }
 
   function replay() {
+    Object.assign(S, { press: 0, bubbles: 0, lift: 0, dripT: 0, lid: 0, hop: 0 });
     if (!tl) build();
     ended = false;
     els.skipLabel.textContent = 'Skip intro';
@@ -347,15 +349,27 @@ export async function start(hero, opts = {}) {
     return { replay: () => false };
   }
 
-  if (!autoplay) {
-    /* the 3D arrived after the still picture was already showing: keep the finished frame, offer Replay */
-    finalState();
-    ended = false; onEnd();
-    els.skip.hidden = false;
-    frame(performance.now());
-  } else {
-    build();
-    tl.play(0);
+  /* the page opens on the finished cover (the picture first, then the same frame in 3D), so the name and
+     buttons show at once; the full dawn intro plays when asked (the cover's button, or "Play the intro") */
+  finalState();
+  ended = false; onEnd();
+  els.skipLabel.textContent = 'Play intro';
+  els.skip.setAttribute('aria-label', 'Play the intro');
+  els.skip.hidden = false;
+  frame(performance.now());
+  if (autoplay && window.scrollY < 8) {
+    /* each product makes its small move once, in under 3.5 s */
+    wake(3800);
+    /* the loop keeps drawing while this runs (on a slow phone GSAP's clock can run behind real time) */
+    greet = gsap.timeline({ delay: 0.6, defaults: { ease: 'power2.out' }, onStart: () => wake(600), onComplete: () => wake(300) })
+      .to(S, { press: 1, duration: 0.5, ease: 'power1.inOut' }, 0)
+      .fromTo(S, { bubbles: 0 }, { bubbles: 1, duration: 1.4, ease: 'none' }, 0.15)
+      .to(S, { lift: 1, duration: 0.45 }, 0.8)
+      .fromTo(S, { dripT: 0 }, { dripT: 1, duration: 0.55, ease: 'power1.in' }, 1.25)
+      .to(S, { lift: 0, duration: 0.4, ease: 'power2.in' }, 1.7)
+      .to(S, { lid: 1, duration: 0.6 }, 1.7)
+      .to(S, { lid: 2, duration: 0.5, ease: 'power2.in' }, 2.3)
+      .to(S, { hop: 1, duration: 0.8, ease: 'power1.inOut' }, 2.1);
   }
   wake(1500);
   if (/[?&]debug\b/.test(location.search)) window.__nexCover = { tl: () => tl, S, draw: () => frame(performance.now()) };

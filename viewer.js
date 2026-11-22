@@ -25,7 +25,7 @@ export function open(p, opts = {}) {
   pv.style.setProperty('--pv-glow', theme.ingredient);
   const word = (p.range || p.typeName).replace(/\+$/, '');
   const wordEl = $('.pv__word', pv); wordEl.textContent = word;
-  wordEl.style.fontSize = `clamp(3rem, ${Math.min(13, 95 / Math.max(4, word.length)).toFixed(2)}vw, 13rem)`;
+  wordEl.style.fontSize = `clamp(2.5rem, ${Math.min(8, 70 / Math.max(4, word.length)).toFixed(2)}vw, 6rem)`;
   $('.pv__brand', pv).textContent = p.brandName + ' · ' + p.typeName;
   $('.pv__name', pv).textContent = p.name;
   $('.pv__chips', pv).innerHTML = p.chips.concat(p.range ? [p.range + ' range'] : []).map(c => `<span class="chip">${esc(c)}</span>`).join('');
@@ -39,6 +39,7 @@ export function open(p, opts = {}) {
   /* the photo: the large cut-out, the card picture until it arrives */
   ui.photo.alt = 'Photo of ' + p.brandName + ' ' + p.name;
   ui.photo.src = p.thumb;
+  ui.photo.hidden = false;
   const big = new Image();
   big.onload = () => { if (cur && cur.p === p) ui.photo.src = p.img; };
   big.src = p.img;
