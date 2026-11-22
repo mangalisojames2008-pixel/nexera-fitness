@@ -1,11 +1,10 @@
 /* =========================================================
-   NexEra Skin cover: "Your routine, in four steps", in 3D.
-   A drop (the dot from the NexEra logo) falls, the four featured products
-   (solid packs made from the real product photos, stock only, in their real
-   relative sizes) rise one by one and each does a small move,
+   NexEra Skin cover, in 3D: a drop (the dot from the NexEra logo) falls,
    the sun rises, and NEXERA grows out of it.
+   (The four products were taken off the cover at the owner's request,
+   2026-11-22: they looked artificial. The scroll story keeps its 3D packs.)
    ========================================================= */
-import { THREE, makeRenderer, makeScene, makeShadow, packProduct, packOf, tint } from './studio.js';
+import { THREE, makeRenderer, makeScene } from './studio.js';
 
 const gsap = window.gsap, ScrollTrigger = window.ScrollTrigger;
 const $ = (s, c) => (c || document).querySelector(s);
@@ -14,19 +13,15 @@ const lerp = (a, b, t) => a + (b - a) * t;
 const clamp01 = t => Math.min(1, Math.max(0, t));
 const ease = t => 1 - Math.pow(1 - t, 3);
 
-const DATA = window.NEXERA_SKIN;
 /* Colours: golden hour in terracotta, nude, cream and gold. */
 const C = {
   fogNight: '#3a1d15', fogDawn: '#e3ad82', floorTint: '#ffd2ad', floorMetal: 0.12,
   floor: [[0, '#8a5038'], [0.4, '#61341f'], [1, '#3a1e13']],
   sun: [[0, '#fff6dc'], [0.35, '#f6d47a'], [0.7, '#d9ab41'], [1, '#b46645']],
   glow: [[0, 'rgba(246,212,122,0.9)'], [0.35, 'rgba(242,202,153,0.4)'], [1, 'rgba(180,102,69,0)']],
-  ripple: '#f2ca99', drip: '#d9ab41', dripGlow: '#f2b45a',
-  rim: [0.78, 0.6, 0.52, 0.42], night: [0.55, 0.46, 0.42]
+  ripple: '#f2ca99',
+  rim: [0.78, 0.6, 0.52, 0.42]
 };
-const STEP = {}; DATA.STEPS.forEach(s => { STEP[s.id] = s; });
-/* one featured product per step, in routine order */
-const SPECS = DATA.FEATURED.map(p => ({ p, n: STEP[p.step].n, name: STEP[p.step].name }));
 
 function gradientTexture(stops, radial) {
   const c = document.createElement('canvas'); c.width = c.height = 256;
@@ -75,21 +70,7 @@ export async function start(hero, opts = {}) {
   dropGlow.scale.set(2.2, 2.2, 1); drop.add(dropGlow, dropBall); scene.add(drop);
 
   const ringMat = () => new THREE.MeshBasicMaterial({ color: C.ripple, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false });
-  const ripples = [0, 1, 2, 3, 4].map(() => { const m = new THREE.Mesh(new THREE.RingGeometry(0.92, 1, 72), ringMat()); m.rotation.x = -Math.PI / 2; m.position.y = 0.01; scene.add(m); return m; });
-
-  /* real relative sizes: the tallest pack is 4.3 units, the others follow their size in mm */
-  const tallest = Math.max(...SPECS.map(spec => (packOf(spec.p).dims || { h: 150 }).h));
-  const stands = await Promise.all(SPECS.map(spec => packProduct(spec.p, { mmScale: 4.3 / tallest, height: 3 })));
-  const items = SPECS.map((spec, i) => {
-    const stand = stands[i], prod = stand.userData.product;
-    const holder = new THREE.Group(); holder.add(stand); scene.add(holder);
-    const shadow = makeShadow(Math.max(stand.userData.width, stand.userData.depth) * 0.62 + 0.25, 0.55); scene.add(shadow);
-    return { spec, stand, prod, holder, shadow, h: stand.userData.height, base: new THREE.Vector3(), scale: 1, rest: 0 };
-  });
-  const bubbleMat = new THREE.MeshPhysicalMaterial({ color: '#ffffff', roughness: 0.05, transparent: true, opacity: 0.75, clearcoat: 1, transmission: 0 });
-  const bubbles = [0, 1, 2, 3].map(i => { const b = new THREE.Mesh(new THREE.SphereGeometry(0.09 + i * 0.025, 20, 20), bubbleMat); b.visible = false; scene.add(b); return b; });
-  const drip = new THREE.Mesh(new THREE.SphereGeometry(0.075, 20, 20), new THREE.MeshPhysicalMaterial({ color: C.drip, emissive: C.dripGlow, emissiveIntensity: 0.3, roughness: 0.1, clearcoat: 1 }));
-  drip.visible = false; scene.add(drip);
+  const ripples = [0].map(() => { const m = new THREE.Mesh(new THREE.RingGeometry(0.92, 1, 72), ringMat()); m.rotation.x = -Math.PI / 2; m.position.y = 0.01; scene.add(m); return m; });
 
   /* ----- layout for phones (portrait) and wider screens ----- */
   const g = { W: 1, H: 1, portrait: false, target: new THREE.Vector3(), d: 20 };
@@ -97,13 +78,11 @@ export async function start(hero, opts = {}) {
     wide: { x: [-3.75, -1.3, 1.25, 3.7], z: [0.2, -0.35, -0.35, 0.2], s: [1, 1, 1, 1], rest: [0.3, 0.12, -0.12, -0.3], screenY: 0.665, fill: 0.31 },
     tall: { x: [-2.25, -0.78, 0.75, 2.25], z: [0.25, -0.2, -0.25, 0.25], s: [0.6, 0.6, 0.6, 0.6], rest: [0.3, 0.12, -0.12, -0.3], screenY: 0.61, fill: 0.2 }
   };
-  const stepEls = $$('.hero__step', hero);
   function layout() {
     g.W = hero.clientWidth; g.H = hero.clientHeight; g.portrait = g.W / g.H < 0.8;
     renderer.setSize(g.W, g.H, false);
     cam.aspect = g.W / g.H;
     const L = g.portrait ? LAYOUT.tall : LAYOUT.wide;
-    items.forEach((it, i) => { it.base.set(L.x[i], 0, L.z[i]); it.scale = L.s[i]; it.rest = L.rest[i]; it.holder.scale.setScalar(it.scale); });
     const rowW = (g.portrait ? 6.0 : 9.2), prodH = 4.4 * (g.portrait ? 0.64 : 1);
     const vt = Math.tan(THREE.MathUtils.degToRad(cam.fov / 2));
     const dH = prodH / L.fill / (2 * vt), dW = rowW * 1.12 / (2 * vt * cam.aspect);
@@ -134,21 +113,15 @@ export async function start(hero, opts = {}) {
   function toScreen(v) { const p = v.clone().project(cam); return { x: (p.x + 1) / 2 * g.W, y: (1 - p.y) / 2 * g.H }; }
 
   /* ----- state the timeline animates ----- */
-  const S = { fall: 0, land: 0, rise: [0, 0, 0, 0], label: [0, 0, 0, 0], press: 0, bubbles: 0, lift: 0, dripT: 0, lid: 0, hop: 0, sun: 0, warm: 0, settle: 0, flood: 0, exit: 0, ripple: [0, 0, 0, 0, 0] };
+  const S = { fall: 0, land: 0, sun: 0, warm: 0, settle: 0, flood: 0, ripple: [0] };
   let t0 = performance.now();
 
   function draw(now) {
-    const t = (now - t0) / 1000;
-    const idle = S.settle;
-
     /* light warms as the sun rises */
     skyDawn.style.opacity = S.warm.toFixed(3);
     scene.fog.color.copy(fogNight).lerp(fogDawn, S.warm * 0.85);
     rim.intensity = 1.2 + S.warm * 1.6; rim.color.setRGB(1, lerp(C.rim[0], C.rim[1], S.warm), lerp(C.rim[2], C.rim[3], S.warm));
     key.intensity = 1.3 + S.warm * 0.4;
-    /* the photos are dim and blue at night and take on the morning light */
-    const w = S.warm;
-    items.forEach(it => tint(it.stand, lerp(C.night[0], 1, w), lerp(C.night[1], 0.985, w), lerp(C.night[2], 0.955, w)));
 
     /* the drop */
     drop.visible = S.fall > 0 && S.land < 1;
@@ -157,55 +130,13 @@ export async function start(hero, opts = {}) {
       const sq = S.land; drop.scale.set(1 + sq * 1.4, Math.max(0.02, 1 - sq * 0.97), 1 + sq * 1.4);
       dropGlow.material.opacity = 1 - sq;
     }
-    /* ripples: 0 is the drop, 1 to 4 are the products */
+    /* the drop's ripple */
     ripples.forEach((r, i) => {
-      const k = S.ripple[i], pos = i === 0 ? new THREE.Vector3(0, 0, 0.6) : items[i - 1].base;
-      r.position.set(pos.x, 0.012, pos.z);
-      r.scale.setScalar(0.2 + k * (i === 0 ? 7 : 2.6));
+      const k = S.ripple[i];
+      r.position.set(0, 0.012, 0.6);
+      r.scale.setScalar(0.2 + k * 7);
       r.material.opacity = k > 0 && k < 1 ? (1 - k) * 0.9 : 0;
     });
-
-    /* the products */
-    items.forEach((it, i) => {
-      const r = S.rise[i], e = ease(r);
-      const spread = 1 + S.exit * 0.5;
-      const bob = 0; /* the packs rest still once they have risen */
-      it.holder.position.set(it.base.x * spread, lerp(-6, 0, e) + bob + S.exit * (3 + i * 0.6), it.base.z);
-      it.holder.scale.setScalar(it.scale);
-      it.prod.rotation.set(0, lerp(-2.2, it.rest, e) + S.exit * (i % 2 ? 0.8 : -0.8), 0);
-      it.holder.visible = r > 0.001;
-      it.shadow.position.set(it.base.x * spread, 0.006, it.base.z);
-      it.shadow.material.opacity = 0.55 * e * (1 - S.exit);
-      it.shadow.scale.setScalar(it.scale * (1 - Math.min(0.4, bob * 2)));
-    });
-    /* 01 cleanse: the bottle gives a squeeze and foam bubbles float up from the top */
-    const cl = items[0], sq = Math.sin(Math.PI * S.press);
-    cl.stand.scale.set(1 + sq * 0.05, 1 - sq * 0.08, 1 + sq * 0.05);
-    const top = new THREE.Vector3(cl.holder.position.x + 0.25 * cl.scale, cl.holder.position.y + cl.h * cl.scale + 0.05, cl.holder.position.z);
-    bubbles.forEach((b, i) => {
-      const k = clamp01(S.bubbles * 1.6 - i * 0.18);
-      b.visible = k > 0 && k < 1;
-      b.position.set(top.x + Math.sin(k * 6 + i) * 0.18 + i * 0.08, top.y + k * (1.6 + i * 0.3), top.z);
-      b.scale.setScalar((0.6 + k * 0.8) * cl.scale);
-    });
-    /* 02 treat: the serum lifts and tips, and a drop falls to the floor */
-    const tr = items[1];
-    tr.holder.position.y += S.lift * 0.9 * tr.scale;
-    tr.prod.rotation.z = -S.lift * 0.22;
-    if (S.dripT > 0 && S.dripT < 1) {
-      drip.visible = true;
-      const fall = S.dripT * S.dripT, from = tr.holder.position.y + 0.1;
-      drip.position.set(tr.holder.position.x + 0.15 * tr.scale, lerp(from, 0.08, fall), tr.holder.position.z + 0.3);
-      drip.scale.setScalar(tr.scale * (S.dripT < 0.12 ? S.dripT / 0.12 : 1));
-    } else drip.visible = false;
-    /* 03 moisturise: the jar lifts and turns a full circle */
-    const mo = items[2], lk = Math.min(1, S.lid);
-    mo.holder.position.y += Math.sin(lk * Math.PI / 2) * 0.55 * mo.scale * (S.lid > 1 ? 2 - S.lid : 1);
-    /* (no full turn: the jar only lifts) */
-    /* 04 protect: the sunscreen hops and spins as the sun comes up */
-    const tb = items[3];
-    tb.holder.position.y += Math.sin(Math.PI * S.hop) * 0.9;
-    /* (no spin: the sunscreen only hops) */
 
     /* the sun */
     sun.position.lerpVectors(g.sunStart, g.sunEnd, ease(S.sun));
@@ -214,20 +145,12 @@ export async function start(hero, opts = {}) {
     sunGlow.material.opacity = S.sun;
     sun.lookAt(cam.position);
 
-    /* camera: a slow push in when the products settle, and a little parallax on a laptop */
+    /* camera: a slow push in as the scene settles */
     const push = 1 - S.settle * 0.06;
     cam.position.set(g.target.x, g.target.y + g.d * 0.2 * push, g.d * push);
     cam.lookAt(g.target.x, g.target.y, 0);
 
     renderer.render(scene, cam);
-
-    /* step labels under each product */
-    items.forEach((it, i) => {
-      const el = stepEls[i]; if (!el) return;
-      const p = toScreen(new THREE.Vector3(it.holder.position.x, -0.2, it.base.z));
-      el.style.transform = `translate(-50%, 0) translate(${p.x.toFixed(1)}px, ${(p.y + 10).toFixed(1)}px)`;
-      el.style.opacity = (S.label[i] * (1 - S.exit)).toFixed(3);
-    });
 
     /* the paper flood that carries you into the page */
     if (S.flood > 0.001) {
@@ -245,7 +168,7 @@ export async function start(hero, opts = {}) {
     raf = 0;
     draw(now);
     if (firstFrame) { firstFrame = false; hero.classList.add('is-3d'); }
-    const busy = (tl && tl.isActive()) || (greet && greet.isActive()) || now < awakeUntil;
+    const busy = (tl && tl.isActive()) || now < awakeUntil;
     if (running && busy) raf = requestAnimationFrame(frame); else running = false;
   }
   function wake(ms) { awakeUntil = Math.max(awakeUntil, performance.now() + (ms || 2500)); startLoop(); }
@@ -263,11 +186,10 @@ export async function start(hero, opts = {}) {
     wordWrap: $('.hero__word-wrap', hero), word: $('.word', hero), letters: $$('.word__l', hero), copy: $('.hero__copy', hero),
     ctas: $$('.hero__ctas .btn', hero), skip: $('.hero__skip', hero), skipLabel: $('.hero__skip-label', hero), scroll: $('.hero__scroll', hero), nav: $('#nav')
   };
-  let tl = null, ended = false, greet = null;
+  let tl = null, ended = false;
 
   function finalState() {
-    S.fall = 1; S.land = 1; S.rise = [1, 1, 1, 1]; S.label = [1, 1, 1, 1]; S.press = 0; S.bubbles = 0; S.lift = 0; S.dripT = 0; S.lid = 0; S.hop = 0;
-    S.sun = 1; S.warm = 1; S.settle = 1; S.ripple = [0, 0, 0, 0, 0];
+    S.fall = 1; S.land = 1; S.sun = 1; S.warm = 1; S.settle = 1; S.ripple = [0];
   }
   function kicker(text) { if (els.kickerText.textContent !== text) els.kickerText.textContent = text; }
 
@@ -296,38 +218,19 @@ export async function start(hero, opts = {}) {
       .fromTo(S, { fall: 0, land: 0 }, { fall: 1, duration: 0.7, ease: 'power1.in' }, 0.2)
       .to(S, { land: 1, duration: 0.25, ease: 'power2.out' }, 0.9)
       .fromTo(S.ripple, { 0: 0 }, { 0: 1, duration: 1.4, ease: 'power2.out' }, 0.9);
-    /* the four products, one after another */
-    SPECS.forEach((spec, i) => {
-      const at = 1.0 + i * 1.05;
-      tl.fromTo(S.rise, { [i]: 0 }, { [i]: 1, duration: 0.95, ease: 'back.out(1.25)' }, at)
-        .fromTo(S.ripple, { [i + 1]: 0 }, { [i + 1]: 1, duration: 1.1, ease: 'power2.out' }, at)
-        .fromTo(S.label, { [i]: 0 }, { [i]: 1, duration: 0.5 }, at + 0.35)
-        .call(() => kicker(spec.n + ' · ' + spec.name), null, at + 0.1);
-    });
-    tl.call(() => kicker('01 · Cleanse'), null, 1.1)
-      .to(S, { press: 1, duration: 0.5, ease: 'power1.inOut' }, 1.55)
-      .fromTo(S, { bubbles: 0 }, { bubbles: 1, duration: 1.6, ease: 'none' }, 1.7)
-      .to(S, { lift: 1, duration: 0.45, ease: 'power2.out' }, 2.55)
-      .fromTo(S, { dripT: 0 }, { dripT: 1, duration: 0.55, ease: 'power1.in' }, 3.0)
-      .to(S, { lift: 0, duration: 0.4, ease: 'power2.in' }, 3.45)
-      .to(S, { lid: 1, duration: 0.7, ease: 'power2.out' }, 3.45)
-      .to(S, { lid: 2, duration: 0.55, ease: 'power2.in' }, 4.55)
-      .to(S, { hop: 1, duration: 0.9, ease: 'power1.inOut' }, 4.55)
-      .to(S, { sun: 1, duration: 1.8, ease: 'power2.out' }, 4.4)
-      .to(S, { warm: 1, duration: 2, ease: 'power1.inOut' }, 4.2)
-      .to(S, { settle: 1, duration: 1.4, ease: 'power2.inOut' }, 5.2)
+    tl.to(S, { sun: 1, duration: 1.8, ease: 'power2.out' }, 1.4)
+      .to(S, { warm: 1, duration: 2, ease: 'power1.inOut' }, 1.2)
+      .to(S, { settle: 1, duration: 1.4, ease: 'power2.inOut' }, 2.2)
       /* NEXERA grows out of the sun */
-      .fromTo(els.word, { x: wordFrom('x'), y: wordFrom('y'), scale: 0.04, autoAlpha: 0 }, { x: 0, y: 0, scale: 1, autoAlpha: 1, duration: 1.3, ease: 'expo.out', immediateRender: true }, 5.45)
-      .fromTo(els.letters, { yPercent: 45, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 0.8, stagger: 0.06, ease: 'power3.out' }, 5.5)
-      .fromTo(els.copy, { autoAlpha: 0, y: 16 }, { autoAlpha: 1, y: 0, duration: 0.7 }, 6.15)
-      .fromTo(els.ctas, { autoAlpha: 0, y: 16 }, { autoAlpha: 1, y: 0, duration: 0.7, stagger: 0.08 }, 6.3)
-      .fromTo(els.scroll, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.6 }, 6.6)
-      .call(() => kicker('Skincare store · South Africa'), null, 6.4)
-      .call(onEnd, null, 7.0);
+      .fromTo(els.word, { x: wordFrom('x'), y: wordFrom('y'), scale: 0.04, autoAlpha: 0 }, { x: 0, y: 0, scale: 1, autoAlpha: 1, duration: 1.3, ease: 'expo.out', immediateRender: true }, 2.45)
+      .fromTo(els.letters, { yPercent: 45, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 0.8, stagger: 0.06, ease: 'power3.out' }, 2.5)
+      .fromTo(els.copy, { autoAlpha: 0, y: 16 }, { autoAlpha: 1, y: 0, duration: 0.7 }, 3.15)
+      .fromTo(els.ctas, { autoAlpha: 0, y: 16 }, { autoAlpha: 1, y: 0, duration: 0.7, stagger: 0.08 }, 3.3)
+      .fromTo(els.scroll, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.6 }, 3.6)
+      .call(onEnd, null, 4.0);
   }
 
   function replay() {
-    Object.assign(S, { press: 0, bubbles: 0, lift: 0, dripT: 0, lid: 0, hop: 0 });
     if (!tl) build();
     ended = false;
     els.skipLabel.textContent = 'Skip intro';
@@ -357,20 +260,6 @@ export async function start(hero, opts = {}) {
   els.skip.setAttribute('aria-label', 'Play the intro');
   els.skip.hidden = false;
   frame(performance.now());
-  if (autoplay && window.scrollY < 8) {
-    /* each product makes its small move once, in under 3.5 s */
-    wake(3800);
-    /* the loop keeps drawing while this runs (on a slow phone GSAP's clock can run behind real time) */
-    greet = gsap.timeline({ delay: 0.6, defaults: { ease: 'power2.out' }, onStart: () => wake(600), onComplete: () => wake(300) })
-      .to(S, { press: 1, duration: 0.5, ease: 'power1.inOut' }, 0)
-      .fromTo(S, { bubbles: 0 }, { bubbles: 1, duration: 1.4, ease: 'none' }, 0.15)
-      .to(S, { lift: 1, duration: 0.45 }, 0.8)
-      .fromTo(S, { dripT: 0 }, { dripT: 1, duration: 0.55, ease: 'power1.in' }, 1.25)
-      .to(S, { lift: 0, duration: 0.4, ease: 'power2.in' }, 1.7)
-      .to(S, { lid: 1, duration: 0.6 }, 1.7)
-      .to(S, { lid: 2, duration: 0.5, ease: 'power2.in' }, 2.3)
-      .to(S, { hop: 1, duration: 0.8, ease: 'power1.inOut' }, 2.1);
-  }
   wake(1500);
   if (/[?&]debug\b/.test(location.search)) window.__nexCover = { tl: () => tl, S, draw: () => frame(performance.now()) };
   startLoop();
@@ -393,7 +282,6 @@ export async function start(hero, opts = {}) {
   gsap.timeline({ scrollTrigger: { trigger: hero, start: 'top top', end: '+=65%', pin: true, scrub: true, refreshPriority: 10 }, onUpdate: () => wake(400) })
     .to(els.ui, { opacity: 0, duration: 0.45, ease: 'power1.in' }, 0)
     .to(els.wordWrap, { scale: 1.35, duration: 0.55, ease: 'power1.in' }, 0)
-    .to(S, { exit: 1, duration: 0.8, ease: 'power1.in' }, 0)
     .to(S, { flood: 1, duration: 1, ease: 'power2.in' }, 0);
   ScrollTrigger.sort();
   ScrollTrigger.refresh();
