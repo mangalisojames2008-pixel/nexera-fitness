@@ -23,7 +23,7 @@
   function r1(n) { return Math.round(n * 10) / 10; }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function mailto(subject, body) { return 'mailto:' + EMAIL + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body); }
-  function artOf(p) { return 'assets/products/' + p.shape + '-' + p.tone + '-' + p.cap + '.webp'; }
+  function artOf(p) { return (window.NEXERA_PHOTOS || {})[p.id] ? 'assets/photos/' + p.id + '.webp' : 'assets/products/' + p.shape + '-' + p.tone + '-' + p.cap + '.webp'; }
   function onVisible(el, cb, margin) {
     if (!('IntersectionObserver' in window)) { cb(true); return; }
     new IntersectionObserver(function (e) { cb(e[0].isIntersecting); }, { rootMargin: margin || '80px 0px' }).observe(el);

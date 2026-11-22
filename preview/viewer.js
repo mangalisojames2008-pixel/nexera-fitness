@@ -76,6 +76,13 @@ export function open(p, opts = {}) {
   oldCanvas.replaceWith(canvas);
   ui.still.hidden = true;
   ui.still.src = `assets/products/${p.shape}-${p.tone}-${p.cap}.webp`;
+  /* a real photo, when the owner has added one */
+  const hasPhoto = !!(window.NEXERA_PHOTOS || {})[p.id], photo = $('.pv__photo', pv);
+  photo.hidden = !hasPhoto;
+  if (hasPhoto) { photo.src = `assets/photos/${p.id}.webp`; photo.alt = 'Photo of ' + p.brandName + ' ' + p.name; }
+  $('.pv__note', pv).textContent = hasPhoto
+    ? 'The photo shows the product. The 3D view is an illustration of the type of packaging, with simplified parts.'
+    : 'Illustration. Not the actual packaging. Parts are simplified.';
 
   const state = { p, opts, ui, canvas, reduce, skinTl, fromEl, raf: 0, alive: true, listeners: [] };
   cur = state;
