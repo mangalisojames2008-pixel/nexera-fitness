@@ -11,7 +11,7 @@
   var EMAIL = 'nexeracommerce@gmail.com';
 
   var BRANDS = [
-    { id: 'garnier', name: 'Garnier' },
+        { id: 'garnier', name: 'Garnier' },
     { id: 'cerave', name: 'CeraVe' },
     { id: 'eucerin', name: 'Eucerin' },
     { id: 'avene', name: 'Avène' }
@@ -19,7 +19,7 @@
 
   /* The types visitors can filter by, and which routine step each belongs to. */
   var TYPES = [
-    { id: 'cleanser', name: 'Cleansers', one: 'Cleanser', step: 'cleanse', tone: 'aqua',
+        { id: 'cleanser', name: 'Cleansers', one: 'Cleanser', step: 'cleanse', tone: 'aqua',
       what: 'Cleansers lift away oil, dirt, sunscreen and make-up, so skin is clean before the next step.' },
     { id: 'water', name: 'Waters and toners', one: 'Water or toner', step: 'cleanse', tone: 'mist',
       what: 'Light waters and toners refresh the skin or take off make-up without rinsing.' },
@@ -41,7 +41,7 @@
 
   /* The routine steps, used by the cover, the skin story and the 3D view. */
   var STEPS = [
-    { id: 'cleanse', n: '01', name: 'Cleanse' },
+        { id: 'cleanse', n: '01', name: 'Cleanse' },
     { id: 'treat', n: '02', name: 'Treat' },
     { id: 'moisturise', n: '03', name: 'Moisturise' },
     { id: 'protect', n: '04', name: 'Protect' }
@@ -51,53 +51,44 @@
   var RANGE = {
     garnier: {
       cleanser: [
-        'Even & Bright Vitamin C Serum Cleanser', 'Even & Bright Vitamin C Cleansing Foam', 'Even & Matte Vitamin C Cleansing Gel',
-        'Even & Matte Face Wash', 'Pure Active Deep Hydrating Cleanser', 'Pure Active Daily Deep Pore Wash',
-        'Pure Active Daily Pore Scrub Wash', 'Pure Active 3-in-1 Clay Cleanser', 'Pure Active Charcoal 3-in-1'
+        'Even & Bright Vitamin C Serum Cleanser', 'Even & Bright Vitamin C Cleansing Foam', 'Even & Matte Vitamin C Cleansing Gel', 'Pure Active Deep Hydrating Cleanser', 'Pure Active Daily Deep Pore Wash', 'Pure Active 3-in-1 Clay Cleanser', 'Pure Active Charcoal 3-in-1'
       ],
-      water: ['Micellar Cleansing Water', 'Purifying Micellar Water Jelly', 'Micellar Gentle Peeling Water'],
-      moisturiser: [
-        'Hyaluron Fresh & Plump Hydrating Cream', 'Salicylic Fresh & Matte Hydrating Cream', 'Vitamin C Fresh & Bright Hydrating Cream',
-        'Even & Bright Vitamin C Water Gel', 'Even & Bright Vitamin C Cream for Very Oily Skin', 'Even & Matte Ideal Complexion Daily Cream',
-        'Pure Active Ideal Complexion Daily Cream', 'Pure Active AHA+BHA Charcoal Air Cream'
+      water: ['Micellar Cleansing Water', 'Micellar Gentle Peeling Water'],
+      moisturiser: ['Even & Bright Vitamin C Water Gel', 'Even & Bright Vitamin C Cream for Very Oily Skin', 'Pure Active AHA+BHA Charcoal Air Cream'
       ],
-      serum: [
-        'Even & Matte Vitamin C Booster Serum', 'Even & Matte Vitamin C Night Serum', 'Even & Bright 3.5% Vitamin C Day Booster Serum',
-        'Even & Bright Night Serum', 'Pure Active AHA+BHA Charcoal Anti-Blemish Serum', 'Even & Bright Vitamin C Dark Spot Corrector',
-        'Even & Matte Booster Serum'
+      serum: ['Even & Bright 3.5% Vitamin C Day Booster Serum',
+        'Even & Bright Night Serum', 'Pure Active AHA+BHA Charcoal Anti-Blemish Serum', 'Even & Bright Vitamin C Dark Spot Corrector'
       ],
       sunscreen: [
-        'Super UV Air-Mist Sunscreen SPF50', 'Super UV Invisible Serum Sunscreen Vitamin C', 'Super UV Cooling Watergel Sunscreen Vitamin C',
-        'Super UV Water Gel Sunscreen SPF50', 'Even & Bright Vitamin C Protection Day Cream SPF30', 'Even & Matte SPF30 Day Cream'
+        'Super UV Air-Mist Sunscreen SPF50', 'Super UV Invisible Serum Sunscreen Vitamin C', 'Super UV Cooling Watergel Sunscreen Vitamin C', 'Even & Bright Vitamin C Protection Day Cream SPF30'
       ],
-      exfoliant: ['Even & Matte Vitamin C Face Scrub', 'Pure Active Pimple Patches']
+      exfoliant: ['Even & Bright Vitamin C Gentle Clarifying Face Scrub']
     },
     cerave: {
       cleanser: [
         'Hydrating Cleanser', 'Foaming Cleanser', 'Hydrating Cream-to-Foam Cleanser', 'SA Smoothing Cleanser',
-        'Blemish Control Cleanser', 'Hydrating Foaming Oil Cleanser', 'Acne Control Cleanser'
+        'Blemish Control Cleanser', 'Hydrating Foaming Oil Cleanser'
       ],
       moisturiser: [
         'Moisturising Cream', 'Moisturising Lotion', 'Facial Moisturising Lotion', 'Facial Moisturising Lotion PM',
         'Oil Control Moisturising Gel-Cream', 'Intensive Moisturising Cream', 'SA Smoothing Cream', 'Skin Renewing Peptide Cream'
       ],
       serum: ['Skin Renewing Vitamin C Serum', 'Resurfacing Retinol Serum', 'Hydrating Hyaluronic Acid Serum', 'Skin Renewing Retinol Serum'],
-      sunscreen: ['Facial Moisturising Lotion SPF30', 'Facial Moisturising Lotion SPF50', 'Hydrating Mineral Sunscreen', 'Hydrating Mineral Sunscreen SPF50 Face Lotion'],
+      sunscreen: ['Facial Moisturising Lotion SPF30', 'Facial Moisturising Lotion SPF50'],
       repair: ['Advanced Repair Ointment'],
       eyelip: ['Eye Repair Cream', 'Skin Renewing Eye Cream']
     },
     eucerin: {
       cleanser: [
-        'DermoPure Purifying Cleanser', 'DermoPure Triple Effect Cleansing Gel', 'DermoPure Cleansing Gel',
+        'DermoPure Purifying Cleanser',
         'DermatoCLEAN Refreshing Cleansing Gel'
       ],
-      water: ['DermatoCLEAN Micellar Water', 'DermoPure Toner'],
+      water: ['DermoPure Toner'],
       moisturiser: [
         'DermoPure Hydra Repair', 'DermoPure Clinical Mattifying Fluid', 'Hyaluron-Filler Day Cream', 'Hyaluron-Filler Night Cream',
         'Hyaluron-Filler + Elasticity Day Cream', 'Hyaluron-Filler + Elasticity Night Cream', 'Original Extra Thick Creme'
       ],
-      serum: [
-        'DermoPure Triple Effect Serum', 'Even Pigment Perfector Dual Serum', 'Even Pigment Perfector Serum',
+      serum: ['Even Pigment Perfector Dual Serum', 'Even Pigment Perfector Serum',
         'Hyaluron-Filler Epicelline Serum', 'Anti-Pigment Spot Corrector'
       ],
       sunscreen: [
@@ -105,17 +96,16 @@
         'Sun Body Gel-Cream Dry Touch', 'Sun Sensitive Protect'
       ],
       body: [
-        'pH5 Soft Body Cream', 'pH5 Lotion', 'UreaRepair PLUS 5% Urea Lotion', 'UreaRepair PLUS 10% Urea Lotion',
+        'pH5 Soft Body Cream', 'UreaRepair PLUS 10% Urea Lotion',
         'UreaRepair PLUS 5% Urea Hand Cream', 'Even Pigment Perfector Sensitive Areas Body Serum', 'Hyaluron-Filler + Elasticity Hand Cream'
       ],
-      repair: ['Aquaphor Soothing Skin Balm', 'Aquaphor Repairing Ointment', 'Original Healing Cream']
+      repair: ['Aquaphor Soothing Skin Balm', 'Aquaphor Repairing Ointment']
     },
     avene: {
       cleanser: [
-        'Cleanance Cleansing Gel', 'Cleanance Hydra Soothing Cleansing Cream', 'Tolerance Extremely Gentle Cleanser',
-        'XeraCalm Nutrition Cleansing Gel', 'XeraCalm A.D Cleansing Oil'
+        'Cleanance Cleansing Gel', 'Tolerance Extremely Gentle Cleanser', 'XeraCalm A.D Cleansing Oil'
       ],
-      water: ['Micellar Lotion', 'Cleanance Micellar Water', 'Thermal Spring Water'],
+      water: ['Cleanance Micellar Water', 'Thermal Spring Water'],
       moisturiser: [
         'Hydrance Light Hydrating Emulsion', 'Hydrance Rich Hydrating Cream', 'Hydrance Aqua-Gel', 'Tolerance Hydra-10 Cream',
         'Tolerance Hydra-10 Fluid', 'Tolerance Control Soothing Skin Recovery Cream', 'Hyaluron Activ B3 Cellular Renewal Cream',
@@ -124,21 +114,21 @@
       serum: [
         'Hyaluron Activ B3 Serum', 'Cicalfate+ Intensive Recovery Serum', 'Vitamin Activ Cg Serum', 'Cleanance Comedomed'
       ],
-      exfoliant: ['Cleanance Comedomed Peeling', 'A-Oxitive Night Peeling Cream'],
       repair: [
         'Cicalfate+ Restorative Protective Cream', 'XeraCalm A.D Lipid-Replenishing Balm', 'XeraCalm A.D Lipid-Replenishing Cream',
         'Tolerance Control Soothing Skin Recovery Balm'
       ],
       sunscreen: [
-        'Hydrance SPF30 Hydrating Cream', 'Very High Protection Fluid SPF50+', 'Very High Protection Cream SPF50+', 'Intense Protect SPF50+',
-        'Cleanance Sunscreen SPF50+', 'Mineral Sunscreen SPF50+', 'Anti-Ageing Sunscreen SPF50+',
-        'Antirougeurs Rosamed Protective Moisturizing Concentrate SPF50+'
+        'Hydrance SPF30 Hydrating Cream', 'Very High Protection Cream SPF50+', 'Intense Protect SPF50+', 'Mineral Sunscreen SPF50+', 'Anti-Ageing Sunscreen SPF50+'
       ],
-      body: ['XeraCalm Nutrition Moisturising Balm', 'XeraCalm Nutrition Moisturising Lotion'],
       eyelip: ['Cicalfate+ Lips']
     }
   };
-  /* Merged from the owner's list (same product listed twice):
+  /* Removed on 2026-11-22 (owner's request): products with no real product photo,
+     most of them old names or not sold in South Africa. See images/report.md.
+     "Even & Matte Vitamin C Face Scrub" is listed under its current name,
+     Even & Bright Vitamin C Gentle Clarifying Face Scrub (Garnier renamed the range).
+     Merged from the owner's list (same product listed twice):
      Garnier "Pure Active 3-in-1 Clay" = "Pure Active 3-in-1 Clay Cleanser";
      CeraVe "SA Smoothing Cream", "Moisturising Cream", "Moisturising Lotion" (also under body care);
      Avène "Cicalfate+ Repairing Protective Cream" = "Cicalfate+ Restorative Protective Cream";
@@ -154,7 +144,7 @@
 
   /* Chips: only what the product name itself says. */
   var CHIPS = [
-    [/\b3\.5% Vitamin C\b/, '3.5% Vitamin C'],
+        [/\b3\.5% Vitamin C\b/, '3.5% Vitamin C'],
     [/\bVitamin C\b|\bActiv Cg\b/, 'Vitamin C'],
     [/\bHyaluron(ic)?\b|Hyaluron-/, 'Hyaluronic acid'],
     [/\bSalicylic\b/, 'Salicylic acid'],

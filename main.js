@@ -116,7 +116,7 @@
     function text() {
       var lines = items.map(function (i, k) { var p = byId[i.id]; return (k + 1) + '. ' + p.brandName + ', ' + p.name + ' × ' + i.qty; });
       var extra = note && note.value.trim() ? '\nNote: ' + note.value.trim() + '\n' : '';
-      return 'Hi NexEra,\n\nI would like to order:\n\n' + lines.join('\n') + '\n' + extra + '\nMy name:\nMy area for delivery:\n\nPlease send me the prices and how to pay.\n';
+      return 'Hi NexEra,\n\nI would like to order:\n\n' + lines.join('\n') + '\n' + extra + '\nMy name:\nMy area for delivery:\n\nPlease confirm my order and the next steps.\n';
     }
     function open() {
       lastFocus = doc.activeElement;

@@ -185,7 +185,7 @@ button { font: inherit; color: inherit; }
 .rstep__art { border-radius: 20px; overflow: hidden; background: #fbf6f1; }
 .skin { width: 100%; height: auto; }
 .rstep__text { position: relative; }
-.rstep__product { width: 92px; height: 92px; object-fit: contain; margin: -10px 0 8px -8px; }
+.rstep__product { width: 92px; height: 92px; object-fit: contain; margin: -10px 0 8px -8px; mix-blend-mode: multiply; }
 .rstep__num { font-family: var(--f-mono); font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
 .rstep__title { font-size: clamp(2rem, 4.4vw, 3.6rem); margin: 6px 0 14px; letter-spacing: -.03em; }
 .rstep__body { color: var(--muted); font-size: 1.1rem; max-width: 30rem; }
@@ -320,8 +320,7 @@ button { font: inherit; color: inherit; }
 .card__name { font-size: 1.08rem; line-height: 1.25; letter-spacing: -.01em; margin-top: 6px; }
 .card__meta { color: var(--muted); font-size: .9rem; margin-top: 6px; }
 .card__chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-.card__price { margin-top: auto; padding-top: 14px; font-family: var(--f-mono); font-size: .76rem; letter-spacing: .06em; text-transform: uppercase; color: var(--ink); }
-.card__btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+.card__btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: auto; padding-top: 16px; }
 .card__btns .btn { padding: 0 10px; font-size: .86rem; gap: 6px; }
 .card__btns .btn svg { width: 16px; height: 16px; }
 .card [data-add][aria-pressed="true"] { background: #2f7a5b; }
@@ -525,7 +524,6 @@ button { font: inherit; color: inherit; }
 .pv__how-art .skin { display: block; }
 .pv__how-text { padding: 12px 16px 16px; font-size: .95rem; color: var(--muted-night); }
 .pv__buy { display: grid; gap: 12px; padding-top: 6px; }
-.pv__price { font-family: var(--f-mono); font-size: .8rem; letter-spacing: .1em; text-transform: uppercase; }
 .pv__buy-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .pv__buy-btns .btn { padding: 0 12px; }
 .pv [data-pv-add][aria-pressed="true"] { background: #3c9a72; color: #fff; }
