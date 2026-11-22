@@ -328,7 +328,6 @@
   safe('headings', setupSplits);
   safe('reveals', setupReveals);
   safe('routine', setupRoutine);
-  safe('marquee', setupMarquee);
   safe('number', setupStat);
   safe('steps', setupSteps);
   safe('nav', setupNavAndBar);
@@ -450,34 +449,7 @@
   }
 
   /* =========================================================
-     MARQUEE (speed and direction follow your scroll)
-     ========================================================= */
-  function setupMarquee() {
-    var track = $('.marquee__track'); if (!track) return;
-    var group = $('.marquee__group', track), gw = group.offsetWidth || 1000;
-    var copies = Math.max(2, Math.ceil((window.innerWidth * 2) / gw) + 1);
-    for (var i = 1; i < copies; i++) track.appendChild(group.cloneNode(true));
-    if (reduce) return;
-    var x = 0, dir = 1, lastY = window.scrollY, lastT = 0, vel = 0, on = false, raf = 0;
-    function measure() { gw = group.offsetWidth || gw; }
-    if (doc.fonts && doc.fonts.ready) doc.fonts.ready.then(measure);
-    window.addEventListener('resize', measure);
-    function tick(now) {
-      raf = 0;
-      var t = now / 1000, dt = lastT ? Math.min(0.05, t - lastT) : 0; lastT = t;
-      var y = window.scrollY, dy = y - lastY; lastY = y;
-      if (Math.abs(dy) > 0.5) dir = dy > 0 ? 1 : -1;
-      vel += ((dt ? Math.abs(dy) / dt : 0) - vel) * 0.1;
-      x -= dir * (55 + vel * 0.4) * dt;
-      if (x <= -gw) x += gw; if (x > 0) x -= gw;
-      track.style.transform = 'translate3d(' + r1(x) + 'px,0,0)';
-      if (on) raf = requestAnimationFrame(tick);
-    }
-    onVisible(track.parentNode, function (vis) { on = vis; if (vis && !raf) { lastT = 0; lastY = window.scrollY; raf = requestAnimationFrame(tick); } });
-  }
-
-  /* =========================================================
-     02 THE NUMBER: 97 counts up while the sun's rays draw in
+     SPF IN NUMBERS: 97 counts up while the sun's rays draw in
      ========================================================= */
   function setupStat() {
     var val = $('.stat__value'), rays = $$('.stat__rays path');

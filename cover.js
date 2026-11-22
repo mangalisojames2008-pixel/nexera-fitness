@@ -279,7 +279,7 @@ export async function start(hero, opts = {}) {
     els.skipLabel.textContent = 'Replay';
     els.skip.classList.add('is-replay');
     els.skip.setAttribute('aria-label', 'Replay the intro');
-    kicker('Your routine, in four steps');
+    kicker('Skincare store · South Africa');
     wake(3500);
   }
 
@@ -325,7 +325,7 @@ export async function start(hero, opts = {}) {
       .fromTo(els.copy, { autoAlpha: 0, y: 16 }, { autoAlpha: 1, y: 0, duration: 0.7 }, 6.15)
       .fromTo(els.ctas, { autoAlpha: 0, y: 16 }, { autoAlpha: 1, y: 0, duration: 0.7, stagger: 0.08 }, 6.3)
       .fromTo(els.scroll, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.6 }, 6.6)
-      .call(() => kicker('Your routine, in four steps'), null, 6.4)
+      .call(() => kicker('Skincare store · South Africa'), null, 6.4)
       .call(onEnd, null, 7.0);
   }
 
