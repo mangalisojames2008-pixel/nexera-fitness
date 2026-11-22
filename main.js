@@ -1,7 +1,7 @@
 /* =========================================================
    NexEra Skin: page script
    Each part starts on its own, so one failure never blanks the page.
-   The 3D cover (cover.js), the scroll story (story.js) and the product view (viewer.js) load as modules.
+   The cinematic story (cinematic.js, with nexera-models.js) and the product view (viewer.js) load as modules.
    ========================================================= */
 (function () {
   'use strict';
@@ -12,8 +12,7 @@
   var doc = document, root = doc.documentElement;
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var hasGsap = typeof window.gsap !== 'undefined' && typeof window.ScrollTrigger !== 'undefined';
-  var lenis = null, cover = null, heroState = { flood: 0 };
-  var storyStart = null; /* set by the scroll story; called once the cover's 3D is ready */
+  var lenis = null;
   var byId = {};
   DATA.PRODUCTS.forEach(function (p) { byId[p.id] = p; });
 
@@ -334,38 +333,13 @@
   ScrollTrigger.config({ ignoreMobileResize: true });
 
   safe('smooth scroll', setupSmoothScroll);
-  safe('cover', setupCover);
   safe('story', setupStory);
   safe('reveals', setupReveals);
   safe('routine', setupRoutine);
   safe('number', setupStat);
   safe('nav', setupNavAndBar);
-  safe('replay links', setupReplayLinks);
   if (doc.fonts && doc.fonts.ready) doc.fonts.ready.then(function () { ScrollTrigger.refresh(); });
   window.addEventListener('load', function () { ScrollTrigger.refresh(); });
-
-  /* =========================================================
-     THE COVER (cover.js): 3D routine. The still picture stays if 3D cannot start.
-     ========================================================= */
-  function setupCover() {
-    var hero = $('.hero'), fade = $('.hero__fade', hero);
-    var settled = false;
-    function still() {
-      if (settled) return; settled = true;
-      gsap.to(fade, { opacity: 0, duration: 0.6 });
-    }
-    if (reduce) { fade.style.opacity = 0; return; }
-    var fallback = setTimeout(still, reduce ? 0 : 3200);
-    import('./cover.js').then(function (m) {
-      return m.start(hero, {
-        reduce: reduce,
-        canAutoplay: function () { return !settled; },
-        onReady: function () { clearTimeout(fallback); settled = true; },
-        state: heroState
-      });
-    }).then(function (api) { cover = api; if (storyStart) storyStart(); })
-      .catch(function (e) { if (window.console) console.error('[NexEra] 3D cover:', e); still(); if (storyStart) storyStart(); });
-  }
 
   /* =========================================================
      SMOOTH SCROLL AND ANCHOR LINKS
@@ -377,7 +351,7 @@
       gsap.ticker.add(function (t) { lenis.raf(t * 1000); });
     }
     $$('a[href^="#"]').forEach(function (a) {
-      if (a.classList.contains('skip') || a.hasAttribute('data-replay') || a.hasAttribute('data-filter-brand') || a.hasAttribute('data-filter-type')) return;
+      if (a.classList.contains('skip') || a.hasAttribute('data-filter-brand') || a.hasAttribute('data-filter-type')) return;
       a.addEventListener('click', function (e) {
         var id = a.getAttribute('href'); if (id.length < 2) return;
         var el = id === '#top' ? null : $(id); if (id !== '#top' && !el) return;
@@ -409,24 +383,16 @@
   }
 
   /* =========================================================
-     THE SCROLL STORY (story.js): hang tag, the drop through NEXERA, one product
-     per step, into the bag. With reduced motion, or if 3D cannot start, the
-     still photos in the page stay.
+     THE CINEMATIC STORY (cinematic.js): the NEXERA packs for the four steps,
+     the water drop and the bag. With reduced motion, or if 3D cannot start,
+     the still pictures in the stages stay.
      ========================================================= */
   function setupStory() {
     var story = $('#story');
     if (!story || reduce) return;
-    /* the story's 3D waits until the cover's 3D is ready (or the visitor starts scrolling),
-       so the two do not compete for the phone's processor at start-up */
-    var started = false;
-    function go() {
-      if (started) return; started = true;
-      import('./story.js').then(function (m) { return m.start(story); })
-        .catch(function (e) { if (window.console) console.error('[NexEra] scroll story:', e); });
-    }
-    storyStart = function () { if (window.requestIdleCallback) requestIdleCallback(go, { timeout: 2000 }); else setTimeout(go, 500); };
-    window.addEventListener('scroll', function onScroll() { if (window.scrollY > 8) { window.removeEventListener('scroll', onScroll); go(); } }, { passive: true });
-    window.addEventListener('load', function () { setTimeout(storyStart, 8000); });
+    story.classList.add('is-live');
+    import('./cinematic.js').then(function (m) { return m.start(story); })
+      .catch(function (e) { story.classList.remove('is-live'); if (window.console) console.error('[NexEra] cinematic story:', e); });
   }
 
   /* =========================================================
@@ -487,7 +453,7 @@
      ========================================================= */
   function setupNavAndBar() {
     var nav = $('#nav'), bar = $('.phonebar'), secs = $$('[data-nav]');
-    var routine = $('#story') || $('#routine'), fin = $('#start'), pending = false;
+    var routine = $('#shop'), fin = $('#start'), pending = false;
     function update() {
       pending = false;
       var theme = null, probe = 34;
@@ -495,7 +461,7 @@
         var r = secs[i].getBoundingClientRect();
         if (r.top <= probe && r.bottom > probe) { theme = secs[i].getAttribute('data-nav'); break; }
       }
-      if (!theme) theme = heroState.flood > 0.55 ? 'paper' : 'night';
+      if (!theme) theme = 'paper';
       nav.setAttribute('data-theme', theme);
       nav.classList.toggle('is-solid', window.scrollY > 40);
       if (bar && routine && fin) {
@@ -507,23 +473,5 @@
     window.addEventListener('scroll', queue, { passive: true });
     window.addEventListener('resize', queue);
     update();
-  }
-
-  /* =========================================================
-     "REPLAY THE INTRO": back to the top, then play the cover again
-     ========================================================= */
-  function setupReplayLinks() {
-    $$('[data-replay]').forEach(function (a) {
-      if (reduce) { var li = a.closest('li'); (li || a).hidden = true; return; }
-      a.addEventListener('click', function (e) {
-        if (!cover || !cover.replay) return;
-        e.preventDefault();
-        var done = false;
-        function go() { if (!done) { done = true; cover.replay(); } }
-        if (window.scrollY < 4) { go(); return; }
-        if (lenis) { lenis.scrollTo(0, { duration: 1.2, onComplete: go }); setTimeout(go, 1700); }
-        else { window.scrollTo(0, 0); setTimeout(go, 60); }
-      });
-    });
   }
 })();

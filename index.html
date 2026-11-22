@@ -25,8 +25,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500&family=JetBrains+Mono:wght@400;500&family=Sora:wght@600&display=swap" rel="stylesheet">
-  <link rel="preload" as="image" href="assets/cover-poster.webp" media="(min-aspect-ratio: 4/5)" fetchpriority="high">
-  <link rel="preload" as="image" href="assets/cover-poster-m.webp" media="(max-aspect-ratio: 4/5)" fetchpriority="high">
+  <link rel="preload" as="image" href="assets/packs/treat.webp" fetchpriority="high">
   <link rel="stylesheet" href="styles.css">
   <script type="importmap">{ "imports": { "three": "./vendor/three.module.min.js" } }</script>
   <script>
@@ -125,154 +124,93 @@
 
   <main id="main">
 
-    <!-- ================= COVER: the routine in 3D ================= -->
-    <section class="hero" id="top" aria-labelledby="hero-title">
-      <div class="hero__stage" aria-hidden="true">
-        <div class="sky sky--night"></div>
-        <div class="sky sky--dawn"></div>
-        <picture>
-          <source media="(max-aspect-ratio: 4/5)" srcset="assets/cover-poster-m.webp">
-          <img class="hero__poster" src="assets/cover-poster.webp" alt="" width="1600" height="1000" fetchpriority="high">
-        </picture>
-        <canvas class="hero__canvas"></canvas>
-      </div>
-
-      <div class="hero__ui">
-        <p class="hero__kicker" aria-hidden="true"><span class="hero__dot"></span><span class="hero__kicker-text">Skincare store &middot; South Africa</span></p>
-        <div class="hero__word-wrap">
-          <h1 class="word" id="hero-title" aria-label="NexEra Skin">
-            <span class="word__l" aria-hidden="true">N</span><span class="word__l" aria-hidden="true">E</span><span class="word__l" aria-hidden="true">X</span><span class="word__l" aria-hidden="true">E</span><span class="word__l" aria-hidden="true">R</span><span class="word__l" aria-hidden="true">A</span>
-          </h1>
-        </div>
-        <div class="hero__bottom">
-          <div class="hero__copy">
-            <p class="hero__line">Skincare from Garnier, CeraVe, Eucerin and Avène</p>
-            <p class="hero__slogan">Shop smarter. Live better.</p>
-          </div>
-          <div class="hero__ctas">
-            <a class="btn btn--dawn" href="#range">Shop the range</a>
-            <a class="btn btn--ghost" data-mail href="mailto:nexeracommerce@gmail.com">Email us</a>
-          </div>
-        </div>
-        <button class="hero__skip" type="button" hidden><svg class="hero__skip-icon" aria-hidden="true" focusable="false"><use href="#i-replay"/></svg><span class="hero__skip-label">Skip intro</span></button>
-        <p class="hero__scroll" aria-hidden="true"><span>Scroll</span><i></i></p>
-      </div>
-
-      <div class="flood" aria-hidden="true"></div>
-      <div class="hero__fade" aria-hidden="true"></div>
-      <p class="sr-only">Animation: a drop falls, the sun rises, and the word NexEra grows out of it.</p>
-    </section>
-
-    <!-- ================= THE ROUTINE, SCROLL STORY: one stock product per step ================= -->
-    <section class="story" id="story" data-nav="paper" aria-labelledby="story-title">
+    <!-- ================= THE CINEMATIC STORY: NEXERA packs for the four steps, and the real products we stock ================= -->
+    <div class="cine" id="story">
       <!--STORY-->
-<canvas class="story__gl" aria-hidden="true"></canvas>
-      <div class="st st-hero" data-bg="#f6f0e0" data-accent="#b46645" data-soft="#f2ca99">
-        <div class="copy">
-          <p class="eyebrow">Garnier &middot; CeraVe &middot; Eucerin &middot; Avène</p>
-          <h2 id="story-title">Your routine,<br>in four steps</h2>
+<div class="intro" aria-hidden="true"><i></i><i></i><i></i><span>NEXERA</span></div>
+      <canvas class="cine__gl" aria-hidden="true"></canvas>
+      <section class="c-hero" id="top" data-nav="paper" data-bg="#eef0e4" data-accent="#b46645" aria-labelledby="hero-title">
+        <div class="gobo" aria-hidden="true"></div>
+        <div class="c-hero__head"><p class="label">Skincare store &middot; South Africa</p><h1 class="c-hero__word" id="hero-title" aria-label="NexEra Skin"><span aria-hidden="true">NEXERA<sup>™</sup></span></h1></div>
+        <div class="stage" data-stage="float" data-product="treat"><img class="stage__still" src="assets/packs/treat.webp" alt="" width="600" height="750" fetchpriority="high" decoding="async"></div>
+        <div class="c-hero__row">
+          <p class="lead">Your routine, in four steps. One product for each step, chosen from Garnier, CeraVe, Eucerin and Avène.</p>
+          <a class="btn btn--ink" href="#step-cleanse">See the routine</a>
         </div>
-        <div class="stage" data-stage="hang" data-product="0"><img class="stage__still" src="assets/cutouts/sm/cerave-hydrating-cleanser.webp" alt="" width="182" height="440" loading="lazy" decoding="async"></div>
+      </section>
+      <section class="statement" data-stage="none" data-nav="paper" data-bg="#f6f0e0">
+        <p><span class="w">Skincare</span> <span class="w">can</span> <span class="w">take</span> <span class="chip chip--1" aria-hidden="true"></span> <span class="w">ten</span> <span class="w">steps</span> <span class="w">and</span> <span class="w">still</span> <span class="w">leave</span> <span class="w">you</span> <span class="w">guessing.</span> <span class="w">Ours</span> <span class="w">has</span> <span class="chip chip--2" aria-hidden="true"></span> <span class="w">four.</span></p>
+      </section>
+      <section class="chapter" id="step-cleanse" data-nav="paper" data-bg="#e9eff6" data-accent="#2f6db5">
+        <span class="chapter__num" aria-hidden="true">01</span>
+        <div class="stage" data-stage="float" data-product="cleanse"><img class="stage__still" src="assets/packs/cleanse.webp" alt="" width="600" height="750" loading="lazy" decoding="async"></div>
         <div class="copy">
-          <p class="lead">One product for each step, from the range we stock</p>
-          <div class="actions"><a class="btn btn--dawn" href="#shop">Shop the range</a><a class="btn btn--line" href="#routine">How each step works</a></div>
-        </div>
-      </div>
-      <div class="st st-word" data-bg="#f6f0e0" data-accent="#b46645" data-soft="#f2ca99" aria-hidden="true">
-        <div class="giant back">NEXERA</div>
-        <div class="stage" data-stage="float" data-product="0"></div>
-        <div class="giant front">NEXERA</div>
-      </div>
-      <div class="st st-step" id="step-0" data-bg="#eaf1f8" data-accent="#1f5fa8" data-soft="#d5e5f7" style="--p-accent:#1f5fa8">
-        <span class="dot" style="width:46px;height:46px;left:8%;top:18%"></span>
-        <span class="dot" style="width:22px;height:22px;right:12%;top:12%;animation-delay:-2s"></span>
-        <span class="dot" style="width:34px;height:34px;right:8%;bottom:20%;animation-delay:-4s"></span>
-        <article class="post">
-          <p class="post-top"><span class="who"><svg class="av" aria-hidden="true"><use href="#mark"/></svg>NexEra Skin</span><span class="step">Step 01 of 04</span></p>
-          <div class="stage" data-stage="post" data-product="0"><img class="stage__still" src="assets/cutouts/sm/cerave-hydrating-cleanser.webp" alt="" width="182" height="440" loading="lazy" decoding="async"></div>
-          <p class="post-meta"><b>CeraVe Hydrating Cleanser</b>Cleanser &middot; <span class="size">236 ml</span></p>
-        </article>
-        <div class="copy">
-          <p class="eyebrow">01 &middot; Cleanse &middot; CeraVe</p>
-          <h3 class="">Hydrating Cleanser</h3>
+          <p class="label">01 &middot; Cleanse</p>
+          <h2>Clean, <em>not stripped</em></h2>
           <p class="lead">Lifts away oil, dirt, sunscreen and make-up, so skin is clean before the next step</p>
-          <div class="actions">
-            <button class="btn btn--ink" type="button" data-add-id="cerave-hydrating-cleanser" aria-pressed="false"><svg aria-hidden="true"><use href="#i-plus"/></svg><span>Add to list</span></button>
-            <button class="btn btn--line" type="button" data-view-id="cerave-hydrating-cleanser">View product</button>
-          </div>
+          <button class="stock" type="button" data-view-id="cerave-hydrating-cleanser"><img src="assets/cutouts/sm/cerave-hydrating-cleanser.webp" alt="" width="182" height="440" loading="lazy" decoding="async"><span><small>We stock</small><b>CeraVe Hydrating Cleanser</b></span></button>
+          <button class="btn btn--ink" type="button" data-add-id="cerave-hydrating-cleanser" aria-pressed="false"><svg aria-hidden="true"><use href="#i-plus"/></svg><span>Add to list</span></button>
         </div>
-      </div>
-      <div class="st st-step" id="step-1" data-bg="#fff1e0" data-accent="#e06a00" data-soft="#ffe0b8" style="--p-accent:#e06a00">
-        <span class="dot" style="width:46px;height:46px;left:8%;top:18%"></span>
-        <span class="dot" style="width:22px;height:22px;right:12%;top:12%;animation-delay:-2s"></span>
-        <span class="dot" style="width:34px;height:34px;right:8%;bottom:20%;animation-delay:-4s"></span>
-        <article class="post">
-          <p class="post-top"><span class="who"><svg class="av" aria-hidden="true"><use href="#mark"/></svg>NexEra Skin</span><span class="step">Step 02 of 04</span></p>
-          <div class="stage" data-stage="post" data-product="1"><img class="stage__still" src="assets/cutouts/sm/garnier-even-and-bright-3-5-vitamin-c-day-booster-serum.webp" alt="" width="136" height="440" loading="lazy" decoding="async"></div>
-          <p class="post-meta"><b>Garnier Even &amp; Bright 3.5% Vitamin C Day Booster Serum</b>Serum · 3.5% Vitamin C · Day &middot; <span class="size">30 ml</span></p>
-        </article>
+      </section>
+      <section class="water-sec" id="water" data-nav="paper" data-bg="#e6eff1" data-accent="#2f6db5">
+        <div class="water-sec__sticky">
+          <div class="copy"><p class="label">How to use</p><h2>Just add water</h2><p class="lead">Massage onto damp skin, rinse, done</p></div>
+          <div class="stage" data-stage="water" data-product="cleanse"><img class="stage__still" src="assets/packs/cleanse.webp" alt="" width="600" height="750" loading="lazy" decoding="async"></div>
+          <div class="water" aria-hidden="true"><span class="ring"></span><span class="ring"></span><span class="ring"></span><span class="bub" style="left:30%;width:5px;height:5px;animation-delay:0.00s"></span><span class="bub" style="left:67%;width:12px;height:12px;animation-delay:0.23s"></span><span class="bub" style="left:62%;width:10px;height:10px;animation-delay:0.46s"></span><span class="bub" style="left:57%;width:8px;height:8px;animation-delay:0.69s"></span><span class="bub" style="left:52%;width:6px;height:6px;animation-delay:0.92s"></span><span class="bub" style="left:47%;width:13px;height:13px;animation-delay:1.15s"></span><span class="bub" style="left:42%;width:11px;height:11px;animation-delay:1.38s"></span><span class="bub" style="left:37%;width:9px;height:9px;animation-delay:1.61s"></span><span class="bub" style="left:32%;width:7px;height:7px;animation-delay:1.84s"></span><span class="bub" style="left:69%;width:5px;height:5px;animation-delay:2.07s"></span><span class="bub" style="left:64%;width:12px;height:12px;animation-delay:2.30s"></span><span class="bub" style="left:59%;width:10px;height:10px;animation-delay:2.53s"></span><span class="bub" style="left:54%;width:8px;height:8px;animation-delay:2.76s"></span><span class="bub" style="left:49%;width:6px;height:6px;animation-delay:2.99s"></span></div>
+        </div>
+      </section>
+      <section class="chapter chapter--flip" id="step-treat" data-nav="paper" data-bg="#f8ecdf" data-accent="#b8560a">
+        <span class="chapter__num" aria-hidden="true">02</span>
+        <div class="stage" data-stage="float" data-product="treat"><img class="stage__still" src="assets/packs/treat.webp" alt="" width="600" height="750" loading="lazy" decoding="async"></div>
         <div class="copy">
-          <p class="eyebrow">02 &middot; Treat &middot; Garnier</p>
-          <h3 class="is-long">Even &amp; Bright 3.5% Vitamin C Day Booster Serum</h3>
+          <p class="label">02 &middot; Treat</p>
+          <h2>One serum, <em>every morning</em></h2>
           <p class="lead">A light, concentrated serum with vitamin C, used after cleansing and before moisturiser</p>
-          <div class="actions">
-            <button class="btn btn--ink" type="button" data-add-id="garnier-even-and-bright-3-5-vitamin-c-day-booster-serum" aria-pressed="false"><svg aria-hidden="true"><use href="#i-plus"/></svg><span>Add to list</span></button>
-            <button class="btn btn--line" type="button" data-view-id="garnier-even-and-bright-3-5-vitamin-c-day-booster-serum">View product</button>
-          </div>
+          <button class="stock" type="button" data-view-id="garnier-even-and-bright-3-5-vitamin-c-day-booster-serum"><img src="assets/cutouts/sm/garnier-even-and-bright-3-5-vitamin-c-day-booster-serum.webp" alt="" width="136" height="440" loading="lazy" decoding="async"><span><small>We stock</small><b>Garnier Even &amp; Bright 3.5% Vitamin C Day Booster Serum</b></span></button>
+          <button class="btn btn--ink" type="button" data-add-id="garnier-even-and-bright-3-5-vitamin-c-day-booster-serum" aria-pressed="false"><svg aria-hidden="true"><use href="#i-plus"/></svg><span>Add to list</span></button>
         </div>
-      </div>
-      <div class="st st-step" id="step-2" data-bg="#e4f4f2" data-accent="#138a87" data-soft="#c8ebe6" style="--p-accent:#138a87">
-        <span class="dot" style="width:46px;height:46px;left:8%;top:18%"></span>
-        <span class="dot" style="width:22px;height:22px;right:12%;top:12%;animation-delay:-2s"></span>
-        <span class="dot" style="width:34px;height:34px;right:8%;bottom:20%;animation-delay:-4s"></span>
-        <article class="post">
-          <p class="post-top"><span class="who"><svg class="av" aria-hidden="true"><use href="#mark"/></svg>NexEra Skin</span><span class="step">Step 03 of 04</span></p>
-          <div class="stage" data-stage="post" data-product="2"><img class="stage__still" src="assets/cutouts/sm/avene-hydrance-aqua-gel.webp" alt="" width="440" height="346" loading="lazy" decoding="async"></div>
-          <p class="post-meta"><b>Avène Hydrance Aqua-Gel</b>Moisturiser &middot; <span class="size">50 ml</span></p>
-        </article>
+      </section>
+      <section class="chapter" id="step-moisturise" data-nav="paper" data-bg="#e3f1ee" data-accent="#138a87">
+        <span class="chapter__num" aria-hidden="true">03</span>
+        <div class="stage" data-stage="float" data-product="moisturise"><img class="stage__still" src="assets/packs/moisturise.webp" alt="" width="600" height="750" loading="lazy" decoding="async"></div>
         <div class="copy">
-          <p class="eyebrow">03 &middot; Moisturise &middot; Avène</p>
-          <h3 class="">Hydrance Aqua-Gel</h3>
+          <p class="label">03 &middot; Moisturise</p>
+          <h2>Hydration that <em>holds</em></h2>
           <p class="lead">A light gel-cream that helps skin hold on to water</p>
-          <div class="actions">
-            <button class="btn btn--ink" type="button" data-add-id="avene-hydrance-aqua-gel" aria-pressed="false"><svg aria-hidden="true"><use href="#i-plus"/></svg><span>Add to list</span></button>
-            <button class="btn btn--line" type="button" data-view-id="avene-hydrance-aqua-gel">View product</button>
-          </div>
+          <button class="stock" type="button" data-view-id="avene-hydrance-aqua-gel"><img src="assets/cutouts/sm/avene-hydrance-aqua-gel.webp" alt="" width="440" height="346" loading="lazy" decoding="async"><span><small>We stock</small><b>Avène Hydrance Aqua-Gel</b></span></button>
+          <button class="btn btn--ink" type="button" data-add-id="avene-hydrance-aqua-gel" aria-pressed="false"><svg aria-hidden="true"><use href="#i-plus"/></svg><span>Add to list</span></button>
         </div>
-      </div>
-      <div class="st st-step" id="step-3" data-bg="#fbecee" data-accent="#b0213c" data-soft="#f6d3da" style="--p-accent:#b0213c">
-        <span class="dot" style="width:46px;height:46px;left:8%;top:18%"></span>
-        <span class="dot" style="width:22px;height:22px;right:12%;top:12%;animation-delay:-2s"></span>
-        <span class="dot" style="width:34px;height:34px;right:8%;bottom:20%;animation-delay:-4s"></span>
-        <article class="post">
-          <p class="post-top"><span class="who"><svg class="av" aria-hidden="true"><use href="#mark"/></svg>NexEra Skin</span><span class="step">Step 04 of 04</span></p>
-          <div class="stage" data-stage="post" data-product="3"><img class="stage__still" src="assets/cutouts/sm/eucerin-sun-face-oil-control-gel-cream-spf50-plus.webp" alt="" width="135" height="440" loading="lazy" decoding="async"></div>
-          <p class="post-meta"><b>Eucerin Sun Face Oil Control Gel-Cream SPF50+</b>Sunscreen · SPF 50+ &middot; <span class="size">50 ml</span></p>
-        </article>
+      </section>
+      <section class="chapter chapter--flip" id="step-protect" data-nav="paper" data-bg="#f7e7e1" data-accent="#c2410c">
+        <span class="chapter__num" aria-hidden="true">04</span>
+        <div class="stage" data-stage="float" data-product="protect"><img class="stage__still" src="assets/packs/protect.webp" alt="" width="600" height="750" loading="lazy" decoding="async"></div>
         <div class="copy">
-          <p class="eyebrow">04 &middot; Protect &middot; Eucerin</p>
-          <h3 class="is-long">Sun Face Oil Control Gel-Cream SPF50+</h3>
+          <p class="label">04 &middot; Protect</p>
+          <h2>The step that <em>matters most</em></h2>
           <p class="lead">Daily SPF50+ for the South African sun</p>
-          <div class="actions">
-            <button class="btn btn--ink" type="button" data-add-id="eucerin-sun-face-oil-control-gel-cream-spf50-plus" aria-pressed="false"><svg aria-hidden="true"><use href="#i-plus"/></svg><span>Add to list</span></button>
-            <button class="btn btn--line" type="button" data-view-id="eucerin-sun-face-oil-control-gel-cream-spf50-plus">View product</button>
-          </div>
+          <button class="stock" type="button" data-view-id="eucerin-sun-face-oil-control-gel-cream-spf50-plus"><img src="assets/cutouts/sm/eucerin-sun-face-oil-control-gel-cream-spf50-plus.webp" alt="" width="135" height="440" loading="lazy" decoding="async"><span><small>We stock</small><b>Eucerin Sun Face Oil Control Gel-Cream SPF50+</b></span></button>
+          <button class="btn btn--ink" type="button" data-add-id="eucerin-sun-face-oil-control-gel-cream-spf50-plus" aria-pressed="false"><svg aria-hidden="true"><use href="#i-plus"/></svg><span>Add to list</span></button>
         </div>
-      </div>
-      <div class="st st-bag" data-bg="#f6f0e0" data-accent="#24150f" data-soft="#f2ca99">
+      </section>
+      <section class="tiles" data-stage="none" data-nav="night" data-bg="#f6f0e0">
+        <div class="tiles__grid" aria-hidden="true"></div>
+        <h2>Skin that feels<br>like yours again</h2>
+      </section>
+      <section class="marquee" data-stage="none" data-nav="paper" data-bg="#f6f0e0">
+        <p class="sr-only">For calmer skin. For brighter days. For every skin.</p>
+        <div class="marquee__track" aria-hidden="true"><span>For calmer skin <i>&middot;</i> For brighter days <i>&middot;</i> For every skin <i>&middot;</i></span><span>For calmer skin <i>&middot;</i> For brighter days <i>&middot;</i> For every skin <i>&middot;</i></span></div>
+      </section>
+      <section class="c-bag" data-nav="paper" data-bg="#f6f0e0" data-accent="#24150f">
         <div class="copy">
-          <p class="eyebrow">Your routine</p>
-          <h3>It’s in<br>the bag</h3>
-          <p class="lead">Cleanse, treat, moisturise, protect, packed together</p>
-          <div class="actions">
-            <button class="btn btn--dawn" type="button" data-add-routine="cerave-hydrating-cleanser garnier-even-and-bright-3-5-vitamin-c-day-booster-serum avene-hydrance-aqua-gel eucerin-sun-face-oil-control-gel-cream-spf50-plus">Add all four to my list</button>
-            <a class="btn btn--line" href="#shop">Shop the range</a>
-          </div>
+          <p class="label">Your routine</p>
+          <h2>It’s in<br>the bag</h2>
+          <p class="lead">Cleanse, treat, moisturise, protect. Add all four to your order list in one tap.</p>
+          <button class="btn btn--dawn" type="button" data-add-routine="cerave-hydrating-cleanser garnier-even-and-bright-3-5-vitamin-c-day-booster-serum avene-hydrance-aqua-gel eucerin-sun-face-oil-control-gel-cream-spf50-plus">Add all four to my list</button>
         </div>
-        <div class="stage" data-stage="bag" data-product="3"></div>
-      </div>
+        <div class="stage" data-stage="bag" data-product="protect"><img class="stage__still" src="assets/packs/bag.webp" alt="" width="600" height="750" loading="lazy" decoding="async"></div>
+      </section>
 <!--/STORY-->
-    </section>
+    </div>
 
     <!-- ================= SHOP: bento grid (stock products) ================= -->
     <section class="shop" id="shop" data-nav="paper" aria-labelledby="shop-title">
@@ -1585,7 +1523,7 @@
           </details>
           <details>
             <summary>Are the pictures the real products?</summary>
-            <p>Yes. Every product shows the brand's own product photo, and the 3D packs on the cover and in the routine story are made from those photos. Check the brand's pack for the full ingredients and directions.</p>
+            <p>Yes. Every product we sell shows the brand's own product photo. The 3D NEXERA packs in the routine story stand for the four steps; they are not products we sell, and each step names the real product we stock. Check the brand's pack for the full ingredients and directions.</p>
           </details>
           <details>
             <summary>Where do you deliver?</summary>
@@ -1648,12 +1586,11 @@
           <li><a href="#range">Range</a></li>
           <li><a href="#how">Ordering</a></li>
           <li><a href="#questions">Questions</a></li>
-          <li class="footer__replay"><a href="#top" data-replay>Play the intro</a></li>
         </ul>
       </div>
       <div class="footer__small">
         <p><strong>Brands.</strong> Garnier, CeraVe, Eucerin and Avène (Eau Thermale Avène) are trademarks of their owners. NexEra is an independent retailer and is not connected to or endorsed by these brands.</p>
-        <p><strong>Pictures.</strong> Product photos belong to their brands. The cut-out images and the 3D packs on the cover and in the routine story are made from those photos.</p>
+        <p><strong>Pictures.</strong> Product photos belong to their brands, and the cut-out images are made from them. The 3D NEXERA packs in the routine story are our own drawings of the four steps, not products we sell.</p>
         <p><strong>Privacy.</strong> When you email us, we use your name and email address only to answer you and handle your order. Your order list is kept only on your own device. Reviews appear here only with your permission, with your first name.</p>
         <p>&copy; 2026 NexEra</p>
       </div>
