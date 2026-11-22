@@ -5,7 +5,7 @@
 - **Lenis** 1.1.13 (smooth scrolling), MIT License, in `vendor/lenis.min.js`. Licence: `vendor/lenis-LICENSE.txt`.
 - **Fonts:** Sora, DM Sans and JetBrains Mono from Google Fonts, SIL Open Font License.
 - **Logo:** NexEra's own logo files, copied from the store (`../nexera/assets/`).
-- **Product photos:** the brands' own packshots, from africa.garnier.com, africa.cerave.com, cerave.co.uk, eucerin.co.za, eucerin.co.uk and avene.co.uk. The source page of each is in `skincare_products.json`. They belong to the brands. The cut-out versions (`assets/cutouts/`) and the 3D views are made from them (background removed with rembg, MIT License).
+- **Product photos:** the brands' own packshots, from africa.garnier.com, africa.cerave.com, cerave.co.uk, eucerin.co.za, eucerin.co.uk and avene.co.uk. The source page of each is in `skincare_products.json`. They belong to the brands. The cut-out versions (`assets/cutouts/`) and the 3D packs on the cover and in the scroll story are made from them (background removed with rembg, MIT License).
 - **3D packs:** `pack-geometry.js` and `product-3d.js` (from the owner's 3D update) build each pack from its photo. The CeraVe Hydrating Cleanser back photo is from africa.cerave.com.
 - **Cover, scroll story, shop, skin diagrams and the bag:** made in code for NexEra (`cover.js`, `story.js`, `tools/build.js`). No stock images.
 - **Brands:** Garnier, CeraVe, Eucerin and Avène (Eau Thermale Avène) are trademarks of their owners. NexEra is an independent retailer, not connected to or endorsed by them. Product names come from the owner's product list.

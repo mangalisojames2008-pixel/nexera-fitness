@@ -1,7 +1,7 @@
 /* =========================================================
    NexEra Skin: page script
    Each part starts on its own, so one failure never blanks the page.
-   The 3D cover (cover.js) and the 3D product view (viewer.js) load as modules.
+   The 3D cover (cover.js), the scroll story (story.js) and the product view (viewer.js) load as modules.
    ========================================================= */
 (function () {
   'use strict';
@@ -250,7 +250,7 @@
       if (e.target.closest('[data-add]')) { if (List) List.toggle(id); }
       else if (e.target.closest('[data-view]') || e.target.closest('.card__art')) openViewer(id, card);
     });
-    /* start fetching the 3D view as soon as a finger or mouse lands on a card */
+    /* start fetching the product view as soon as a finger or mouse lands on a card */
     $('#cards').addEventListener('pointerdown', prefetchViewer, { passive: true, once: true });
     $('#cards').addEventListener('pointerover', prefetchViewer, { passive: true, once: true });
     /* sticky filter bar gets a line once it is stuck */
@@ -265,7 +265,7 @@
   });
 
   /* =========================================================
-     3D PRODUCT VIEW (viewer.js, loaded when first needed)
+     PRODUCT VIEW (viewer.js, loaded when first needed)
      ========================================================= */
   var viewerMod = null;
   function prefetchViewer() { if (!viewerMod) viewerMod = import('./viewer.js'); return viewerMod; }
@@ -281,13 +281,13 @@
         type: DATA.typeById[p.type]
       });
     }).catch(function (e) {
-      if (window.console) console.error('[NexEra] 3D view:', e);
-      toast('The 3D view could not start on this device.');
+      if (window.console) console.error('[NexEra] product view:', e);
+      toast('The product view could not open. Please try again.');
     });
   }
 
   /* =========================================================
-     SKIN DIAGRAM ANIMATIONS (used by the routine story and the 3D view)
+     SKIN DIAGRAM ANIMATIONS (used by the routine story and the product view)
      ========================================================= */
   function skinTimeline(svg, step) {
     if (!hasGsap) return null;
