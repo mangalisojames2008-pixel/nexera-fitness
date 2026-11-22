@@ -1,8 +1,11 @@
 # Credits
 
+- **three.js** r169, MIT License, in `vendor/three.module.min.js` and `vendor/RoomEnvironment.js`. Licence: `vendor/three-LICENSE.txt`.
 - **GSAP** 3.15.1 and **ScrollTrigger** 3.15.1, free under the GSAP Standard "No Charge" License, in `vendor/gsap.min.js` and `vendor/ScrollTrigger.min.js`. Licence: `vendor/gsap-LICENSE.txt`.
 - **Lenis** 1.1.13 (smooth scrolling), MIT License, in `vendor/lenis.min.js`. Licence: `vendor/lenis-LICENSE.txt`.
 - **Fonts:** Sora, DM Sans and JetBrains Mono from Google Fonts, SIL Open Font License.
 - **Logo:** NexEra's own logo files, copied from the store (`../nexera/assets/`).
-- **Illustration and animation:** the runner, the city, the lamps, the sun and the product shapes are drawn in code for NexEra (`runner.js`, `main.js`, `index.html`). No stock images.
-- **Fact:** "150 minutes of moderate activity a week" and "31% of adults do not reach it" come from the World Health Organization physical activity fact sheet: https://www.who.int/news-room/fact-sheets/detail/physical-activity
+- **Product photos:** the brands' own packshots, from africa.garnier.com, africa.cerave.com, cerave.co.uk, eucerin.co.za, eucerin.co.uk and avene.co.uk. The source page of each is in `skincare_products.json`. They belong to the brands.
+- **Illustrations, 3D views, cover and skin diagrams:** made in code for NexEra (`studio.js`, `cover.js`, `viewer.js`, `tools/build.js`). They show generic packaging, not any brand's packaging. No stock images.
+- **Brands:** Garnier, CeraVe, Eucerin and Avène (Eau Thermale Avène) are trademarks of their owners. NexEra is an independent retailer, not connected to or endorsed by them. Product names come from the owner's product list.
+- **Facts:** "SPF 30 filters about 97% of UVB rays, SPF 50 about 98%": The Skin Cancer Foundation, https://www.skincancer.org/press/the-skin-cancer-foundation-offers-tips-on-choosing-and-using-sunscreen-2/ . "SPF 20 to 50, and 30 to 50 for fair skin": CANSA, Be SunSmart, https://cansa.org.za/be-sunsmart/
