@@ -112,9 +112,10 @@ export async function start(story) {
     const cx = THREE.MathUtils.lerp(boxA.cx, boxB.cx, t), cy = THREE.MathUtils.lerp(boxA.cy, boxB.cy, t);
     const sc = THREE.MathUtils.lerp(scaleToFit(packs[A.product], boxA), scaleToFit(packs[B.product], boxB), t);
     let w = toWorld(cx, cy);
-    // spin between stages; the swap happens edge-on so it's seamless
-    let ry = swap ? (t < 0.5 ? t * Math.PI : (t - 1) * Math.PI) : (a !== b ? t * Math.PI * 2 : 0);
-    ry += Math.sin(now / 1600) * 0.28 + mouseX * 0.4;
+    // one half turn between steps, so the swap to the next product happens edge-on;
+    // the same product just glides. At rest the pack is still (it only follows the pointer a little).
+    let ry = swap ? (t < 0.5 ? t * Math.PI : (t - 1) * Math.PI) : 0;
+    ry += mouseX * 0.25;
     let rz = 0;
 
     // hanging tag (hero)
@@ -136,7 +137,7 @@ export async function start(story) {
       const bs = scaleToFit(bag, { h: br.height * 0.62, w: br.width * 0.75 });
       const bw = toWorld(br.left + br.width / 2, br.bottom - br.height * 0.62 / 2 - br.height * 0.08);
       bag.scale.setScalar(bs); bag.position.set(bw.x, bw.y, 0);
-      bag.rotation.set(0.08, -0.35 + Math.sin(now / 2200) * 0.08, 0);
+      bag.rotation.set(0.08, -0.35, 0);
     }
     const inBag = (B.mode === 'bag' ? t : 0) + (A.mode === 'bag' ? 1 : 0);
 

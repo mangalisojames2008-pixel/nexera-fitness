@@ -202,8 +202,8 @@ function build(state, stand) {
         $$('[data-angle]', pv).forEach(x => x.classList.remove('is-on'));
       }
     }
-    const e = R.enter, idle = reduce ? 0 : Math.sin(now / 900) * 0.035;
-    prod.rotation.set(R.pitch, R.yaw + (1 - e) * -2.4, 0);
+    const e = R.enter, idle = 0;
+    prod.rotation.set(R.pitch, R.yaw + (1 - e) * -0.9, 0);
     lift.position.y = (1 - e) * -size.y * 0.9 + idle * e;
     shadow.material.opacity = 0.5 * e;
 

@@ -133,12 +133,11 @@ export async function start(hero, opts = {}) {
 
   /* ----- state the timeline animates ----- */
   const S = { fall: 0, land: 0, rise: [0, 0, 0, 0], label: [0, 0, 0, 0], press: 0, bubbles: 0, lift: 0, dripT: 0, lid: 0, hop: 0, sun: 0, warm: 0, settle: 0, flood: 0, exit: 0, ripple: [0, 0, 0, 0, 0] };
-  let t0 = performance.now(), mouse = { x: 0, y: 0, tx: 0, ty: 0 };
+  let t0 = performance.now();
 
   function draw(now) {
     const t = (now - t0) / 1000;
     const idle = S.settle;
-    mouse.x = lerp(mouse.x, mouse.tx, 0.05); mouse.y = lerp(mouse.y, mouse.ty, 0.05);
 
     /* light warms as the sun rises */
     skyDawn.style.opacity = S.warm.toFixed(3);
@@ -168,10 +167,10 @@ export async function start(hero, opts = {}) {
     items.forEach((it, i) => {
       const r = S.rise[i], e = ease(r);
       const spread = 1 + S.exit * 0.5;
-      const bob = idle * Math.sin(t * 1.3 + i * 1.7) * 0.07;
+      const bob = 0; /* the packs rest still once they have risen */
       it.holder.position.set(it.base.x * spread, lerp(-6, 0, e) + bob + S.exit * (3 + i * 0.6), it.base.z);
       it.holder.scale.setScalar(it.scale);
-      it.prod.rotation.set(0, lerp(-2.2, it.rest, e) + idle * Math.sin(t * 0.5 + i) * 0.12 + S.exit * (i % 2 ? 0.8 : -0.8), 0);
+      it.prod.rotation.set(0, lerp(-2.2, it.rest, e) + S.exit * (i % 2 ? 0.8 : -0.8), 0);
       it.holder.visible = r > 0.001;
       it.shadow.position.set(it.base.x * spread, 0.006, it.base.z);
       it.shadow.material.opacity = 0.55 * e * (1 - S.exit);
@@ -200,11 +199,11 @@ export async function start(hero, opts = {}) {
     /* 03 moisturise: the jar lifts and turns a full circle */
     const mo = items[2], lk = Math.min(1, S.lid);
     mo.holder.position.y += Math.sin(lk * Math.PI / 2) * 0.55 * mo.scale * (S.lid > 1 ? 2 - S.lid : 1);
-    mo.prod.rotation.y += (S.lid / 2) * Math.PI * 2;
+    /* (no full turn: the jar only lifts) */
     /* 04 protect: the sunscreen hops and spins as the sun comes up */
     const tb = items[3];
     tb.holder.position.y += Math.sin(Math.PI * S.hop) * 0.9;
-    tb.prod.rotation.y += S.hop * Math.PI * 2;
+    /* (no spin: the sunscreen only hops) */
 
     /* the sun */
     sun.position.lerpVectors(g.sunStart, g.sunEnd, ease(S.sun));
@@ -215,8 +214,8 @@ export async function start(hero, opts = {}) {
 
     /* camera: a slow push in when the products settle, and a little parallax on a laptop */
     const push = 1 - S.settle * 0.06;
-    cam.position.set(g.target.x + mouse.x * 0.8, g.target.y + g.d * 0.2 * push + mouse.y * 0.4, g.d * push);
-    cam.lookAt(g.target.x + mouse.x * 0.3, g.target.y, 0);
+    cam.position.set(g.target.x, g.target.y + g.d * 0.2 * push, g.d * push);
+    cam.lookAt(g.target.x, g.target.y, 0);
 
     renderer.render(scene, cam);
 
@@ -254,9 +253,6 @@ export async function start(hero, opts = {}) {
   layout();
   let rt = 0;
   window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { layout(); wake(600); }, 120); });
-  if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
-    window.addEventListener('pointermove', e => { mouse.tx = (e.clientX / window.innerWidth - 0.5) * S.settle; mouse.ty = -(e.clientY / window.innerHeight - 0.5) * S.settle; if (window.scrollY < window.innerHeight) wake(1800); }, { passive: true });
-  }
   renderer.compile(scene, cam);
 
   /* ----- text and controls ----- */

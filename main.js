@@ -97,8 +97,9 @@
     function render() {
       ul.innerHTML = items.map(function (i) {
         var p = byId[i.id];
+        var size = ((window.NEXERA_PACKS || {})[p.id] || {}).size;
         return '<li class="litem" data-id="' + p.id + '"><img src="' + artOf(p) + '" alt="" width="64" height="64">' +
-          '<div><p class="litem__brand">' + esc(p.brandName) + '</p><p class="litem__name">' + esc(p.name) + '</p>' +
+          '<div><p class="litem__brand">' + esc(p.brandName) + (size ? ' &middot; <span class="size">' + esc(size) + '</span>' : '') + '</p><p class="litem__name">' + esc(p.name) + '</p>' +
           '<button class="litem__remove" type="button" data-remove>Remove</button></div>' +
           '<div class="qty" role="group" aria-label="Amount of ' + esc(p.name) + '"><button type="button" data-dec aria-label="One less">−</button><output>' + i.qty + '</output><button type="button" data-inc aria-label="One more">+</button></div></li>';
       }).join('');
@@ -325,11 +326,9 @@
   safe('smooth scroll', setupSmoothScroll);
   safe('cover', setupCover);
   safe('story', setupStory);
-  safe('headings', setupSplits);
   safe('reveals', setupReveals);
   safe('routine', setupRoutine);
   safe('number', setupStat);
-  safe('steps', setupSteps);
   safe('nav', setupNavAndBar);
   safe('replay links', setupReplayLinks);
   if (doc.fonts && doc.fonts.ready) doc.fonts.ready.then(function () { ScrollTrigger.refresh(); });
@@ -384,27 +383,18 @@
   /* =========================================================
      HEADINGS THAT BUILD WORD BY WORD, AND GENTLE REVEALS
      ========================================================= */
-  function setupSplits() {
-    $$('[data-split]').forEach(function (h) {
-      var text = h.textContent.trim().replace(/\s+/g, ' ');
-      h.setAttribute('aria-label', text);
-      h.innerHTML = text.split(' ').map(function (w) { return '<span class="w" aria-hidden="true"><span class="w__i">' + esc(w) + '</span></span>'; }).join(' ');
-      if (reduce) return;
-      gsap.from($$('.w__i', h), { yPercent: 112, duration: 1.1, ease: 'power4.out', stagger: 0.055, scrollTrigger: { trigger: h, start: 'top 88%', once: true } });
-    });
-  }
   function setupReveals() {
     if (reduce) return;
     $$('[data-reveal]').forEach(function (el) {
-      gsap.from(el, { y: 36, opacity: 0, duration: 1.1, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 90%', once: true } });
+      gsap.from(el, { y: 12, opacity: 0, duration: 0.45, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 90%', once: true } });
     });
     $$('[data-reveal-stagger]').forEach(function (list) {
-      gsap.from(list.children, { y: 50, opacity: 0, duration: 1.1, ease: 'power3.out', stagger: 0.09, scrollTrigger: { trigger: list, start: 'top 88%', once: true } });
+      gsap.from(Array.prototype.slice.call(list.children, 0, 6), { y: 12, opacity: 0, duration: 0.45, ease: 'power3.out', stagger: 0.05, scrollTrigger: { trigger: list, start: 'top 88%', once: true } });
     });
     var first = true;
     ScrollTrigger.create({
       trigger: '#cards', start: 'top 85%', once: true,
-      onEnter: function () { if (!first) return; first = false; gsap.from($$('#cards .card:not(.is-hidden)').slice(0, 8), { y: 40, opacity: 0, duration: 0.9, stagger: 0.06, ease: 'power3.out', clearProps: 'transform,opacity' }); }
+      onEnter: function () { if (!first) return; first = false; gsap.from($$('#cards .card:not(.is-hidden)').slice(0, 6), { y: 12, opacity: 0, duration: 0.45, stagger: 0.05, ease: 'power3.out', clearProps: 'transform,opacity' }); }
     });
   }
 
@@ -471,14 +461,7 @@
   /* =========================================================
      ORDERING: each card eases back as the next one stacks on it
      ========================================================= */
-  function setupSteps() {
-    if (reduce) return;
-    var steps = $$('.step');
-    steps.forEach(function (s, i) {
-      var next = steps[i + 1]; if (!next) return;
-      gsap.to(s, { scale: 0.94, ease: 'none', scrollTrigger: { trigger: next, start: 'top bottom', scrub: true, end: function () { return 'top ' + (parseFloat(getComputedStyle(next).top) || 100) + 'px'; } } });
-    });
-  }
+
 
   /* =========================================================
      NAV COLOURS AND THE PHONE BAR

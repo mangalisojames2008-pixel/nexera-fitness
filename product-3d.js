@@ -103,7 +103,7 @@ export async function createPack(src, { shape = 'oval', height = 3, dims = null,
 }
 
 // A shopping bag drawn on a canvas, built with the same solid-pack method.
-export async function createBag({ label = 'NEXERA', color = '#2a150f', ink = '#f6f0e0', handle = '#f2ca99', font = '700 92px Sora, "Segoe UI", system-ui, sans-serif', height = 3, rows = 60, segments = 32 } = {}) {
+export async function createBag({ label = 'NEXERA', color = '#2a150f', ink = '#f6f0e0', handle = '#f2ca99', font = '600 92px Sora, "Segoe UI", system-ui, sans-serif', height = 3, rows = 60, segments = 32 } = {}) {
   const c = document.createElement('canvas'); c.width = 600; c.height = 760;
   const g = c.getContext('2d');
   const draw = () => {
